@@ -3,26 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PROJECT.NOAH 학생부</title>
-  <meta name="description" content="PROJECT.NOAH — 방주에 오른 12명의 학생부">
+  <title>PROJECT NOAH</title>
+  <meta name="description" content="PROJECT NOAH — 방주에 오른 열두 명의 학생부">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@100;200;400;500;700&family=IBM+Plex+Sans:wght@100;200&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <header class="top">
-    <div class="logo">PROJECT<span>.</span>NOAH</div>
-    <div class="top-meta">기록 열람</div>
-  </header>
+  <!-- 물속 배경: 수면에서 들어오는 빛 조각 + 종이 질감 -->
+  <div class="sea" aria-hidden="true">
+    <svg class="sea-light" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMin slice">
+      <defs>
+        <filter id="patchA" x="0" y="0" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.0026 0.011" numOctaves="4" seed="4"/><feGaussianBlur stdDeviation="2" result="n"/>
+          <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0"/>
+          <feComponentTransfer><feFuncA type="discrete" tableValues="0 0 0 0 0 0 1 1"/></feComponentTransfer>
+          <feComposite in="SourceGraphic" operator="in"/>
+        </filter>
+        <filter id="patchB" x="0" y="0" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.004 0.016" numOctaves="4" seed="11"/><feGaussianBlur stdDeviation="2" result="n"/>
+          <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0"/>
+          <feComponentTransfer><feFuncA type="discrete" tableValues="0 0 0 0 0 1 1 1"/></feComponentTransfer>
+          <feComposite in="SourceGraphic" operator="in"/>
+        </filter>
+        <linearGradient id="fadeA" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+          <stop offset=".45" stop-color="#fff" stop-opacity=".9"/>
+          <stop offset=".75" stop-color="#fff" stop-opacity="0"/>
+        </linearGradient>
+        <mask id="mA"><rect width="1600" height="1000" fill="url(#fadeA)"/></mask>
+        <linearGradient id="fadeB" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+          <stop offset=".3" stop-color="#fff" stop-opacity=".8"/>
+          <stop offset=".5" stop-color="#fff" stop-opacity="0"/>
+        </linearGradient>
+        <mask id="mB"><rect width="1600" height="1000" fill="url(#fadeB)"/></mask>
+      </defs>
+      <!-- 진한 파랑 얼룩 -->
+      <g mask="url(#mA)"><rect width="1600" height="1000" fill="#2a95d0" filter="url(#patchB)"/></g>
+      <!-- 밝은 빛 조각 -->
+      <g mask="url(#mB)"><rect width="1600" height="1000" fill="#c9eef8" filter="url(#patchA)"/></g>
+    </svg>
+    <svg class="grain" aria-hidden="true">
+      <filter id="g"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+      <rect width="100%" height="100%" filter="url(#g)"/>
+    </svg>
+  </div>
 
   <main class="board">
-    <div class="board-head">
-      <p class="eyebrow">학생부 열람</p>
-      <h1>탑승자 열두 명</h1>
-      <p class="sub">학생증을 눌러 기록을 여세요.</p>
-    </div>
+    <header class="hero">
+      <h1 class="title">PROJECT NOAH</h1>
+      <p class="sub">학생증을 눌러 기록을 여세요</p>
+    </header>
 
     <div class="deck">
       <section class="row row-5" id="row1"></section>
@@ -34,12 +68,21 @@
 
   <!-- 프로필 오버레이 -->
   <div class="profile" id="profile" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pName">
-    <div class="profile-scrim" data-close></div>
+    <div class="flood" data-close>
+      <div class="wave w1"></div>
+      <div class="wave w2"></div>
+      <div class="wave w3">
+        <svg class="deep-light" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
+          <g mask="url(#mB)"><rect width="1600" height="1000" fill="#2a7fc0" filter="url(#patchA)"/></g>
+        </svg>
+      </div>
+      <div class="flood-bubbles"></div>
+    </div>
 
     <button class="p-nav p-prev" id="pPrev" aria-label="이전 학생">‹</button>
     <button class="p-nav p-next" id="pNext" aria-label="다음 학생">›</button>
 
-    <div class="profile-inner">
+    <div class="profile-inner" id="pInner">
       <button class="p-close" data-close aria-label="닫기">✕</button>
 
       <div class="p-left">
@@ -58,7 +101,7 @@
           <div class="stat"><span>반</span><b id="pCls"></b></div>
           <div class="stat"><span>성별</span><b id="pGender"></b></div>
           <div class="stat"><span>키</span><b id="pHeight"></b></div>
-          <div class="stat"><span>상태</span><b class="alive">생존</b></div>
+          <div class="stat"><span>상태</span><b>생존</b></div>
         </div>
 
         <div class="p-block p-quote" id="pQuoteWrap">

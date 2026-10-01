@@ -70,45 +70,76 @@
 
     const m = Math.max(0, Math.min(100, s.memory ?? 0));
     $('pMemNum').textContent = m + '%';
+    $('pMemBar').style.transitionDelay = '0s';
     $('pMemBar').style.width = '0';
-    requestAnimationFrame(() => requestAnimationFrame(() => { $('pMemBar').style.width = m + '%'; }));
 
     $('pReason').innerHTML = (s.locked || !s.reason)
       ? redactions(4) + '<span class="locked-msg">기억 손상 · 열람 불가</span>'
       : s.reason;
 
-    type($('pName'), or(s.name, '??????'));
+    clearInterval(typer);
+    $('pName').innerHTML = '&nbsp;';
   }
 
-  function replay() {
-    // 애니메이션 다시 재생
-    P.classList.remove('open');
-    void P.offsetWidth;
-    P.classList.add('open');
+  const inner = $('pInner');
+  let closeTimer = null;
+
+  /* 물속 기포 */
+  const fb = P.querySelector('.flood-bubbles');
+  for (let k = 0; k < 18; k++) {
+    const b = document.createElement('span');
+    const sz = 3 + Math.random() * 10;
+    b.style.width = b.style.height = sz + 'px';
+    b.style.left = Math.random() * 100 + '%';
+    b.style.animationDuration = 3 + Math.random() * 5 + 's';
+    b.style.animationDelay = (0.3 + Math.random() * 3) + 's';
+    b.style.setProperty('--dx', (Math.random() * 40 - 20) + 'px');
+    fb.appendChild(b);
+  }
+
+  function showContent(base) {
+    inner.classList.remove('show');
+    inner.style.setProperty('--base', base + 's');
+    void inner.offsetWidth;
+    inner.classList.add('show');
+    const m = Math.max(0, Math.min(100, S[cur].memory ?? 0));
+    $('pMemBar').style.transitionDelay = (base + 0.6) + 's';
+    requestAnimationFrame(() => requestAnimationFrame(() => { $('pMemBar').style.width = m + '%'; }));
   }
 
   function open(i) {
+    clearTimeout(closeTimer);
     lastFocus = document.activeElement;
     cur = i;
     fill(i);
+    P.classList.remove('closing', 'open');
+    void P.offsetWidth;
     P.setAttribute('aria-hidden', 'false');
     document.body.classList.add('locked');
-    replay();
+    P.classList.add('open');
+    showContent(0.9);
+    setTimeout(() => type($('pName'), or(S[cur].name, '??????')), 900);
     P.querySelector('.p-close').focus({ preventScroll: true });
   }
 
   function close() {
-    P.classList.remove('open');
-    P.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('locked');
+    if (!P.classList.contains('open') || P.classList.contains('closing')) return;
     clearInterval(typer);
-    if (lastFocus) lastFocus.focus({ preventScroll: true });
+    P.classList.add('closing');
+    closeTimer = setTimeout(() => {
+      P.classList.remove('open', 'closing');
+      inner.classList.remove('show');
+      P.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('locked');
+      if (lastFocus) lastFocus.focus({ preventScroll: true });
+    }, 450);
   }
 
   function go(d) {
     cur = (cur + d + S.length) % S.length;
     fill(cur);
-    replay();
+    showContent(0.05);
+    type($('pName'), or(S[cur].name, '??????'));
   }
 
   P.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', close));
@@ -116,7 +147,7 @@
   $('pNext').addEventListener('click', () => go(1));
 
   document.addEventListener('keydown', e => {
-    if (!P.classList.contains('open')) return;
+    if (!P.classList.contains('open') || P.classList.contains('closing')) return;
     if (e.key === 'Escape') close();
     if (e.key === 'ArrowLeft') go(-1);
     if (e.key === 'ArrowRight') go(1);
