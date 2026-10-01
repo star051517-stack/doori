@@ -65,6 +65,8 @@
     $('pVName').textContent = or(s.name, '??????');
     $('pVEn').textContent = 'NOAH-' + pad(i + 1);
     $('pCode').textContent = 'NOAH-' + pad(i + 1) + ' / 12';
+    $('pGiant').textContent = s.en || 'UNKNOWN';
+    P.querySelector('.p-hud span:last-child').textContent = (i + 1) + ' OF ' + S.length;
     $('pTag').textContent = s.tag || '';
     $('pEn').textContent = s.en || 'UNKNOWN';
     $('pCls').textContent = s.cls ? s.cls + '반' : '미정';
@@ -125,8 +127,8 @@
       const defs = el('defs', {});
       const g = el('linearGradient', { id: 'g' + cls, x1: 0, y1: 0, x2: 0, y2: 1 });
       g.appendChild(el('stop', { offset: '0', 'stop-color': c.fill }));
-      g.appendChild(el('stop', { offset: '.35', 'stop-color': '#0f3f7a' }));
-      g.appendChild(el('stop', { offset: '1', 'stop-color': '#061a36' }));
+      g.appendChild(el('stop', { offset: '.35', 'stop-color': '#1f3cf0' }));
+      g.appendChild(el('stop', { offset: '1', 'stop-color': '#1f3cf0' }));
       defs.appendChild(g); svg.appendChild(defs);
     }
     svg.appendChild(el('path', { d, fill: c.grad ? `url(#g${cls})` : c.fill }));
@@ -174,7 +176,7 @@
   const flood = P.querySelector('.flood');
   const fb = P.querySelector('.flood-bubbles');
   [
-    ['sw-deep', { fill: '#1c6fb4', phase: 2.1, amp: 70, curl: [90, 140], grad: true, swirl: '#3a9ad6' }],
+    ['sw-deep', { fill: '#2f4dff', phase: 2.1, amp: 70, curl: [90, 140], grad: true, swirl: '#6f86ff' }],
     ['sw-3', { thick: 900, fill: '#1c86c8', shade: '#156aa8', phase: 4.0, amp: 85, curl: [100, 170], swirl: '#5cc2ea', spray: 25, dot: '#4fb6e6' }],
     ['sw-2', { thick: 750, fill: '#35c6ee', shade: '#22a6d8', phase: 0.9, amp: 95, curl: [110, 190], swirl: '#a8ecf7', spray: 45, dot: '#7fd9f2' }],
     ['sw-1', { thick: 600, fill: '#aeeef6', shade: '#7fdcee', phase: 3.1, amp: 80, curl: [90, 150], swirl: '#ffffff', spray: 60, dot: '#d4f6fb' }]
@@ -196,7 +198,7 @@
     }
     return d + ' Z';
   }
-  for (let k = 0; k < 5; k++) {
+  for (let k = 0; k < 0; k++) {
     const r = Math.random() < .3 ? rnd(26, 60) : rnd(6, 22);
     const box = r * 1.3;
     const svg = el('svg', { width: box * 2, height: box * 2, viewBox: `${-box} ${-box} ${box * 2} ${box * 2}` });
@@ -219,58 +221,74 @@
   }
 
   // 캐릭터 창 장식
-  // 구도: 큰 것(일러스트를 감싸는 큰 원) → 중간(머리 옆에서 이름 쪽으로 작아지는 거품 사슬)
-  //       → 작은 것(사슬 끝의 반짝이) 순서로 시선이 일러스트에서 이름으로 흐르게.
-  //       각 무리 안에도 다시 큰/중간/작은 요소가 있음.
+  // 대: 흰 실크 리본 + 크게 잘린 영문 이름 / 중: 이중선 HUD, 태그라인 / 소: 깨알 글씨, 픽셀, 형광 점.
+  // 리본은 일러스트 뒤에서 나와 정보 칸 아래를 감싸고, 오른쪽 위 큰 이름으로 올라가며 시선을 글자로 이끈다.
   (function buildDeco() {
     const svg = $('pDeco');
-    const wires = svg.querySelector('.wires'), foam = svg.querySelector('.foam'), stars = svg.querySelector('.stars');
-    const line = (d, w, op, k, dash) => wires.appendChild(el('path', {
-      d, pathLength: 1, fill: 'none', stroke: '#fff', 'stroke-width': w, opacity: op, style: `--k:${k}`,
-      ...(dash ? { class: 'dash' } : {})
-    }));
+    const rib = svg.querySelector('.ribbon'), glow = svg.querySelector('.ribbon-glow'), splat = svg.querySelector('.splat');
 
-    /* 대: 일러스트를 감싸는 큰 호 두 겹 (정보 칸 앞에서 멈춤) */
-    line('M 200 -170 A 620 620 0 1 1 199.9 -170', 1, .3, 0);
-    line('M 200 -210 A 660 660 0 1 1 199.9 -210', .8, .2, 1, true);
+    const bez = (p0, p1, p2, p3, t) => {
+      const u = 1 - t;
+      return [0, 1].map(j => u*u*u*p0[j] + 3*u*u*t*p1[j] + 3*u*t*t*p2[j] + t*t*t*p3[j]);
+    };
+    // 기준 곡선 두 마디
+    const segs = [
+      [[560, 1010], [920, 900], [1320, 1130], [1530, 700]],
+      [[1530, 700], [1660, 420], [1580, 120], [1180, 40]]
+    ];
+    const base = [];
+    segs.forEach((sg, si) => { for (let i = si ? 1 : 0; i <= 60; i++) base.push(bez(...sg, i / 60)); });
+    const N = base.length, strands = 34;
+    for (let k = 0; k < strands; k++) {
+      const off = k / (strands - 1) - .5;
+      let d = '';
+      for (let i = 0; i < N; i++) {
+        const [x, y] = base[i];
+        const [xa, ya] = base[Math.max(0, i - 1)], [xb, yb] = base[Math.min(N - 1, i + 1)];
+        let nx = -(yb - ya), ny = xb - xa; const L = Math.hypot(nx, ny) || 1; nx /= L; ny /= L;
+        const t = i / (N - 1);
+        const width = 130 * Math.sin(Math.PI * t) ** .7;          // 양 끝은 가늘게
+        const twist = Math.cos(t * Math.PI * 2.6 + .4);            // 꼬임
+        const o = off * width * twist + off * 18;
+        d += (i ? ' L ' : 'M ') + (x + nx * o).toFixed(1) + ' ' + (y + ny * o).toFixed(1);
+      }
+      const edge = Math.abs(off) > .44;
+      const attrs = { d, fill: 'none', stroke: '#fff', 'stroke-width': edge ? 1.4 : .7, opacity: (edge ? .95 : .25 + .5 * Math.random()).toFixed(2), pathLength: 1, style: `--k:${k}` };
+      rib.appendChild(el('path', attrs));
+      if (k % 3 === 0) glow.appendChild(el('path', { d, fill: 'none', stroke: '#cfe0ff', 'stroke-width': 6, opacity: .35 }));
+    }
 
-    /* 중: 얼굴 쪽에서 나온 선이 정보 칸의 윗줄로 이어짐 + 거품 사슬로 올라가는 가는 선 */
-    line('M 470 360 Q 700 440 880 422 L 1600 422', 1.2, .85, 2);
-    line('M 470 384 Q 690 474 860 444', .7, .45, 3);
-    line('M 520 300 Q 640 230 720 150', .7, .45, 4);
-
-    /* 거품 사슬: 머리 옆(큼) → 이름 앞(작음). 큰 방울 곁에는 다시 작은 방울이 붙음 */
+    // 형광 얼룩 (소)
     [
-      [720, 110, 88], [800, 30, 26], [640, 210, 18],           // 대 + 곁방울
-      [822, 182, 40], [858, 146, 14], [790, 232, 10],          // 중 + 곁방울
-      [858, 228, 17], [880, 210, 6],                           // 소 + 곁방울
-      [866, 252, 8], [869, 266, 4.5], [870, 276, 2.6]          // 이름 첫 글자 위로 떨어짐
-    ].forEach(([x, y, r], k) => foam.appendChild(el('circle', {
-      cx: x, cy: y, r, fill: 'none', stroke: '#fff', 'stroke-width': r > 40 ? 4.5 : r > 15 ? 3.6 : 2.6, style: `--k:${k}`
-    })));
+      ['#ff3bd4', 'M 1508 430 c 6 -8 14 -6 16 2 c 8 -2 12 6 6 12 c 4 8 -4 14 -10 10 c -6 6 -14 0 -12 -8 c -8 -4 -6 -14 0 -16 z'],
+      ['#8dff4a', 'M 1536 452 c 4 -4 10 -2 10 4 c 4 2 2 8 -2 8 c -2 4 -8 4 -9 -1 c -4 -2 -3 -9 1 -11 z'],
+      ['#ff3bd4', 'M 1120 60 c 10 -3 22 -1 30 4 c -8 0 -16 3 -24 2 z'],
+      ['#ffe23d', 'M 1210 70 l 12 -4 l 2 10 l -12 4 z']
+    ].forEach(([c, d]) => splat.appendChild(el('path', { d, fill: c })));
 
-    /* 소: 반짝이. 사슬 끝(이름 바로 앞)에 가장 큰 별, 주변에 중간·작은 별 */
-    const star = (L, w) => `M0 ${-L} C ${w} ${-w} ${w} ${-w} ${L} 0 C ${w} ${w} ${w} ${w} 0 ${L} C ${-w} ${w} ${-w} ${w} ${-L} 0 C ${-w} ${-w} ${-w} ${-w} 0 ${-L} Z`;
-    [
-      [902, 238, 30],                       // 대 (초점: 이름 첫 글자 위)
-      [936, 206, 11], [884, 200, 6],        // 중 · 소
-      [948, 236, 3.5], [920, 186, 3],       // 아주 작게
-      [760, 470, 16], [744, 452, 6],        // 일러스트 가장자리의 작은 무리
-      [1500, 800, 18], [1470, 830, 7], [1528, 780, 4],   // 오른쪽 아래 무리 (대·중·소)
-      [1380, 120, 9], [1400, 100, 4]
-    ].forEach(([x, y, L], k) => {
-      const g = el('g', { transform: `translate(${x} ${y})` });
-      const inner = el('g', { class: 'tw', style: `--k:${k}` });
-      inner.appendChild(el('path', { d: star(L, Math.max(.5, L * .07)), fill: '#fff' }));
-      if (L > 11) inner.appendChild(el('path', { d: star(L * .42, L * .035), fill: '#fff', transform: 'rotate(45)' }));
-      g.appendChild(inner);
-      stars.appendChild(g);
-    });
-    [[980, 228], [1010, 214], [1060, 222], [1500, 360], [1250, 150]].forEach(([x, y], k) =>
-      stars.appendChild(el('circle', { cx: x, cy: y, r: k === 0 ? 2.2 : 1.3, fill: '#fff', opacity: .8 })));
+    // 노랑 픽셀 물결 (중)
+    const px = $('pPixel');
+    const pat = [
+      '.....XX.....',
+      '....X..X....',
+      '...X....X..X',
+      'X.X......XX.',
+      '.X..........'
+    ];
+    pat.forEach(row => [...row].forEach((ch, c) => { const i = document.createElement('i'); if (ch === 'X') { i.className = 'on'; i.style.setProperty('--d', (c * .03) + 's'); } px.appendChild(i); }));
   })();
 
+  function fitGiant() {
+    const g = $('pGiant'), box = g.parentElement;
+    g.style.fontSize = '';
+    const max = box.clientWidth;
+    const w = g.scrollWidth;
+    if (w > max) g.style.fontSize = (parseFloat(getComputedStyle(g).fontSize) * max / w) + 'px';
+  }
+  window.addEventListener('resize', () => { if (P.classList.contains('open')) fitGiant(); });
+
   function showContent(base) {
+    fitGiant();
     inner.classList.remove('show');
     inner.style.setProperty('--base', base + 's');
     void inner.offsetWidth;
