@@ -1,122 +1,104 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>우리 두리</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Lexend+Peta:wght@100..900&family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PROJECT.NOAH 학생부</title>
+  <meta name="description" content="PROJECT.NOAH — 방주에 오른 12명의 학생부">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;700&family=Lexend+Peta:wght@300;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-    <input type="checkbox" id="menu-check">
-    <label for="menu-check" class="heart-toggle"></label>
+  <!-- 바다 배경 -->
+  <div class="sea" aria-hidden="true">
+    <div class="caustics"></div>
+    <div class="bubbles"></div>
+  </div>
 
+  <header class="top">
+    <div class="logo">PROJECT<span>.</span>NOAH</div>
+    <div class="top-meta">
+      <span class="blink">●</span> 방주 기록 열람 중
+    </div>
+  </header>
 
+  <main class="board">
+    <div class="board-head">
+      <p class="eyebrow">ARK RECORD · 학생부</p>
+      <h1>탑승자 열두 명</h1>
+      <p class="sub">학생증을 눌러 기록을 여세요.</p>
+    </div>
 
-    <header class="main-header">
-        <div class="header-left">
-            <span class="text-logo">૮ .  ̫ . ა</span>
+    <div class="deck">
+      <section class="row row-5" id="row1"></section>
+      <section class="row row-7" id="row2"></section>
+    </div>
+
+    <p class="footnote">기억이 아직 돌아오지 않은 기록은 가려져 있습니다.</p>
+  </main>
+
+  <!-- 프로필 오버레이 -->
+  <div class="profile" id="profile" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pName">
+    <div class="profile-scrim" data-close></div>
+
+    <button class="p-nav p-prev" id="pPrev" aria-label="이전 학생">‹</button>
+    <button class="p-nav p-next" id="pNext" aria-label="다음 학생">›</button>
+
+    <div class="profile-inner">
+      <button class="p-close" data-close aria-label="닫기">✕</button>
+
+      <div class="p-left">
+        <div class="p-portrait" id="pPortrait"></div>
+        <div class="p-no" id="pNo">No.01</div>
+      </div>
+
+      <div class="p-right">
+        <div class="p-block p-title">
+          <span class="p-tag" id="pTag"></span>
+          <h2 id="pName"></h2>
+          <span class="p-en" id="pEn"></span>
         </div>
-        <nav class="header-center">
-            <ul>
-                <li><a href="Info.html">Info</a></li>
-                <li>
-                    <div class="header-action">
-                        <a href="javascript:void(0)" onclick="goToRandomWork()" >Work</a>
-                        
-                        <div class="work-tooltip">
-                        랜덤으로 작업보기 ( ˙◞˙ )
-                        </div>
-                    </div>
-                </li>                     
-                <li><a href="#">About</a></li>
-            </ul>
-        </nav>
-        <div class="header-action">
-            <a href="https://www.instagram.com/doori.222?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="explore-btn-top">Instagram</a>
-              <div class="welcome-tooltip">
-                반가워요! (ᐡ⸝⸝- -⸝⸝ᐡ)
-            </div>
+
+        <div class="p-block p-stats">
+          <div class="stat"><span>반</span><b id="pCls"></b></div>
+          <div class="stat"><span>성별</span><b id="pGender"></b></div>
+          <div class="stat"><span>키</span><b id="pHeight"></b></div>
+          <div class="stat"><span>상태</span><b class="alive">생존</b></div>
         </div>
 
-    </header>
+        <div class="p-block p-quote" id="pQuoteWrap">
+          <p id="pQuote"></p>
+        </div>
 
+        <div class="p-block p-desc">
+          <h3>기록</h3>
+          <p id="pDesc"></p>
+          <ul class="traits" id="pTraits"></ul>
+        </div>
 
+        <div class="p-block p-memory">
+          <h3>기억 복원율 <em id="pMemNum">0%</em></h3>
+          <div class="bar"><i id="pMemBar"></i></div>
+        </div>
 
+        <div class="p-block p-reason">
+          <h3>나가야 하는 이유</h3>
+          <p id="pReason"></p>
+        </div>
 
-    <main class="split-container">
-        
-        <section class="split-item" style="--bg-img: url('image1.jpg');">
-            <div class="split-content">
-                <div class="bottom-info">
-                    <span class="top-text">미적지근한 애정 이야기를 좋아해요</span>
-                    <a href="writing.html" class="split-link">
-                	<h2>Writing</h2>
-          			</a>
-                </div>
-            </div>
-        </section>
+        <div class="p-block p-counter">
+          <h3>고발 카운터</h3>
+          <div class="pips"><i></i><i></i></div>
+          <span class="pips-txt">2 / 2</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        <section class="split-item active" style="--bg-img: url('main_chair.jpg');">
-            <div class="split-content">
-                <div class="bottom-info">
-                    <span class="top-text">가장 많이 함께하는 형태</span>
-                    <a href="movie.html" class="split-link">
-                    <h2>Movie</h2>
-              		</a>
-                </div>
-            </div>
-            <div class="point-star">*</div>
-        </section>
-
-        <section class="split-item" style="--bg-img: url('image3.jpg');">
-            <div class="split-content">
-                <div class="bottom-info">
-                    <span class="top-text">가끔 그리는 정지된 것들</span>
-                    <a href="painting.html" class="split-link">
-                    <h2>Painting</h2>
-                </a>
-                </div>
-            </div>
-        </section>
-
-        <section class="split-item" style="--bg-img: url('image4.jpg');">
-            <div class="split-content">
-                <div class="bottom-info">
-                    <span class="top-text">이것저것 해보는 중...</span>
-                    <a href="etc.html" class="split-link">
-                    <h2>Etc.</h2>
-                </a>
-                </div>
-            </div>
-        </section>
-
-
-    </main>
-
-
-		<script>
-		function goToRandomWork() {
-		    //
-		    const pages = [
-		        'writing.html',
-		        'movie.html',
-		        'painting.html',
-		        'etc.html'
-		    ];
-
-		    //
-		    const randomIndex = Math.floor(Math.random() * pages.length);
-
-		    //
-		    window.location.href = pages[randomIndex];
-		}
-		</script>
-
-
+  <script src="students.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
