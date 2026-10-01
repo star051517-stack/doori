@@ -7,7 +7,7 @@
   <meta name="description" content="PROJECT NOAH — 방주에 오른 열두 명의 학생부">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@100;200;400;500;700&family=IBM+Plex+Sans:wght@100;200&family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@100;200;400;500;700&family=IBM+Plex+Sans:wght@100;200&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -79,21 +79,11 @@
     <div class="profile-inner" id="pInner">
       <button class="p-close" data-close aria-label="닫기">✕</button>
 
-      <div class="p-paper" aria-hidden="true"></div>
-      <svg class="p-deco" id="pDeco" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <g class="vortex"></g>
-        <g class="marks"></g>
-        <g class="glitch"></g>
-      </svg>
+      <div class="p-grid" aria-hidden="true"></div>
+      <div class="p-beams" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>
+      <div class="p-collage" aria-hidden="true"><i class="c1"></i><i class="c2"></i><i class="c3"></i></div>
 
-      <div class="p-giant" aria-hidden="true"><span id="pGiant">NAME</span></div>
-      <p class="p-tagline" aria-hidden="true">IF EVERYONE VOTES FOR THEMSELVES,<br>EVERYONE GOES HOME.</p>
-
-      <div class="p-hud" aria-hidden="true"><i></i><i></i><b></b><b></b><b></b><span>ROUND 01</span><span>1 OF 12</span></div>
-      <p class="p-fine" aria-hidden="true">ARK RECORD — 방주회의 기록. 라운드마다 노아가 이번 처형 인원을 공개한다. 그 인원을 떨구지 못하면 전원 청소. 카드는 보여줄 수 없다. 말로만 주고받는다. 모든 라운드: 전원이 자기 자신에게 투표하면 게임이 끝난다. 잃을 게 없으면 누구나 착해요.</p>
-      <div class="p-label" aria-hidden="true"><i></i><span>방 주 기 록</span></div>
-      <div class="p-side" aria-hidden="true">PROJECT NOAH — ARK RECORD</div>
-      <div class="p-barcode" aria-hidden="true"><i></i><span id="pCode">NOAH-01</span></div>
+      <svg class="p-burst" id="pBurst" viewBox="-500 -500 1000 1000" aria-hidden="true"></svg>
 
       <div class="p-art">
         <div class="echo e3" aria-hidden="true"></div>
@@ -101,14 +91,6 @@
         <div class="echo e1" aria-hidden="true"></div>
         <div class="p-portrait" id="pPortrait"></div>
       </div>
-
-      <!-- 일러스트 앞을 감싸는 파도 (잘린 그림 가장자리를 덮음) -->
-      <svg class="p-deco p-front" id="pFront" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <g class="vortex"></g>
-        <g class="lines"></g>
-        <g class="shards"></g>
-        <path class="thread" pathLength="1" d="M 420 1010 C 660 960, 640 600, 805 460 L 1455 460"/>
-      </svg>
 
       <div class="p-plate" aria-hidden="true"><span>NO</span><b id="pNo">01</b></div>
       <div class="p-vname" aria-hidden="true"><span id="pVName"></span><small id="pVEn"></small></div>

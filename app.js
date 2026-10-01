@@ -64,9 +64,6 @@
     });
     $('pVName').textContent = or(s.name, '??????');
     $('pVEn').textContent = 'NOAH-' + pad(i + 1);
-    $('pCode').textContent = 'NOAH-' + pad(i + 1) + ' / 12';
-    $('pGiant').textContent = s.en || 'UNKNOWN';
-    P.querySelector('.p-hud span:last-child').textContent = (i + 1) + ' OF ' + S.length;
     $('pTag').textContent = s.tag || '';
     $('pEn').textContent = s.en || 'UNKNOWN';
     $('pCls').textContent = s.cls ? s.cls + '반' : '미정';
@@ -127,8 +124,8 @@
       const defs = el('defs', {});
       const g = el('linearGradient', { id: 'g' + cls, x1: 0, y1: 0, x2: 0, y2: 1 });
       g.appendChild(el('stop', { offset: '0', 'stop-color': c.fill }));
-      g.appendChild(el('stop', { offset: '.35', 'stop-color': '#1f3cf0' }));
-      g.appendChild(el('stop', { offset: '1', 'stop-color': '#1f3cf0' }));
+      g.appendChild(el('stop', { offset: '.35', 'stop-color': '#0f3f7a' }));
+      g.appendChild(el('stop', { offset: '1', 'stop-color': '#061a36' }));
       defs.appendChild(g); svg.appendChild(defs);
     }
     svg.appendChild(el('path', { d, fill: c.grad ? `url(#g${cls})` : c.fill }));
@@ -176,7 +173,7 @@
   const flood = P.querySelector('.flood');
   const fb = P.querySelector('.flood-bubbles');
   [
-    ['sw-deep', { fill: '#2f4dff', phase: 2.1, amp: 70, curl: [90, 140], grad: true, swirl: '#6f86ff' }],
+    ['sw-deep', { fill: '#1c6fb4', phase: 2.1, amp: 70, curl: [90, 140], grad: true, swirl: '#3a9ad6' }],
     ['sw-3', { thick: 900, fill: '#1c86c8', shade: '#156aa8', phase: 4.0, amp: 85, curl: [100, 170], swirl: '#5cc2ea', spray: 25, dot: '#4fb6e6' }],
     ['sw-2', { thick: 750, fill: '#35c6ee', shade: '#22a6d8', phase: 0.9, amp: 95, curl: [110, 190], swirl: '#a8ecf7', spray: 45, dot: '#7fd9f2' }],
     ['sw-1', { thick: 600, fill: '#aeeef6', shade: '#7fdcee', phase: 3.1, amp: 80, curl: [90, 150], swirl: '#ffffff', spray: 60, dot: '#d4f6fb' }]
@@ -198,18 +195,18 @@
     }
     return d + ' Z';
   }
-  for (let k = 0; k < 0; k++) {
+  for (let k = 0; k < 16; k++) {
     const r = Math.random() < .3 ? rnd(26, 60) : rnd(6, 22);
     const box = r * 1.3;
     const svg = el('svg', { width: box * 2, height: box * 2, viewBox: `${-box} ${-box} ${box * 2} ${box * 2}` });
     const d = blobPath(r);
     const len = 2 * Math.PI * r;
-    svg.appendChild(el('path', { d, fill: 'none', stroke: 'rgba(255,255,255,.55)', 'stroke-width': 1 }));
-    svg.appendChild(el('path', { d, fill: 'none', stroke: '#fff', 'stroke-width': 1.8, 'stroke-linecap': 'round',
+    svg.appendChild(el('path', { d, fill: 'none', stroke: '#a9d3e6', 'stroke-width': Math.max(1.6, r / 14) }));
+    svg.appendChild(el('path', { d, fill: 'none', stroke: '#4f6f8f', 'stroke-width': Math.max(2.2, r / 9), 'stroke-linecap': 'round',
       'stroke-dasharray': `${(len * rnd(.06, .14)).toFixed(1)} ${(len * rnd(.2, .4)).toFixed(1)}`, 'stroke-dashoffset': rnd(0, len).toFixed(0) }));
     if (r > 26) { // 큰 거품엔 작은 거품이 붙음
       const d2 = blobPath(r * rnd(.25, .38)), ang = rnd(0, Math.PI * 2);
-      svg.appendChild(el('path', { d: d2, transform: `translate(${(Math.cos(ang) * r).toFixed(1)} ${(Math.sin(ang) * r).toFixed(1)})`, fill: 'none', stroke: 'rgba(255,255,255,.55)', 'stroke-width': 1 }));
+      svg.appendChild(el('path', { d: d2, transform: `translate(${(Math.cos(ang) * r).toFixed(1)} ${(Math.sin(ang) * r).toFixed(1)})`, fill: 'none', stroke: '#4f6f8f', 'stroke-width': 2 }));
     }
     svg.style.left = rnd(0, 100) + '%';
     svg.style.top = rnd(55, 105) + '%';
@@ -220,95 +217,28 @@
     fb.appendChild(svg);
   }
 
-  // 캐릭터 창 장식 — 모든 무늬는 파도에서 나온다
-  // 대: 일러스트를 앞뒤로 감싸는 파도 붓질 (앞 파도는 잘린 그림 가장자리를 덮음)
-  // 중: 그림 오른쪽 가장자리에서 떨어져 이름 쪽으로 날아가는 물보라 조각, 결 따라 흐르는 가는 선
-  // 소: 물결 문양, 끊긴 줄, 빨간 실 — 실은 그림 앞을 지나 정보 칸의 윗줄이 된다
-  // 글자 칸(오른쪽)에는 큰 덩어리를 두지 않아 읽기를 방해하지 않음
-  (function buildDeco() {
-    const back = $('pDeco'), front = $('pFront');
-    const B = n => back.querySelector('.' + n), F = n => front.querySelector('.' + n);
-    const bez = (p, t) => { const u = 1 - t; return [0, 1].map(j => u*u*u*p[0][j] + 3*u*u*t*p[1][j] + 3*u*t*t*p[2][j] + t*t*t*p[3][j]); };
-    const tan = (p, t) => { const a = bez(p, Math.max(0, t - .01)), b = bez(p, Math.min(1, t + .01)); return Math.atan2(b[1] - a[1], b[0] - a[0]); };
-    const fmt = q => q.map(v => v.toFixed(1)).join(' ');
-
-    function swoosh(root, p, w, fill, op, k) {
-      const L = [], R = [];
-      for (let i = 0; i <= 90; i++) {
-        const t = i / 90, [x, y] = bez(p, t), a = tan(p, t) + Math.PI / 2;
-        const ww = w * Math.pow(Math.sin(Math.PI * Math.min(1, t * 1.15)), .75) * (1 - .55 * t) / 2;
-        const wob = 1 + .1 * Math.sin(t * 26 + k * 2);
-        L.push([x + Math.cos(a) * ww * wob, y + Math.sin(a) * ww * wob]);
-        R.push([x - Math.cos(a) * ww * .6, y - Math.sin(a) * ww * .6]);
-      }
-      root.appendChild(el('path', { d: 'M ' + L.map(fmt).join(' L ') + ' L ' + R.reverse().map(fmt).join(' L ') + ' Z', fill, style: `--k:${k};--o:${op}` }));
-    }
-    function flowLines(root, p, offs, k0) {
-      offs.forEach(([off, op], j) => {
-        let d = '';
-        for (let i = 0; i <= 60; i++) {
-          const t = i / 60, [x, y] = bez(p, t), a = tan(p, t) + Math.PI / 2;
-          const o = off * (1 - .5 * t);
-          d += (i ? ' L ' : 'M ') + fmt([x + Math.cos(a) * o, y + Math.sin(a) * o]);
-        }
-        root.appendChild(el('path', { d, fill: 'none', stroke: '#0b1f4d', 'stroke-width': .8, opacity: op, pathLength: 1, style: `--k:${k0 + j}` }));
-      });
-    }
-    const CURLP = 'M -1 0.35 C -0.75 -0.75, 0.55 -1.15, 1.05 -0.35 C 1.3 0.1, 1.05 0.62, 0.6 0.55 C 0.3 0.5, 0.2 0.2, 0.42 0.02 C 0.62 -0.12, 0.85 0.05, 0.78 0.25 C 0.95 -0.05, 0.7 -0.45, 0.3 -0.38 C -0.15 -0.3, -0.45 0.05, -0.55 0.4 Z';
-
-    /* 뒤: 그림 위쪽·왼쪽으로 보이는 큰 파도 */
-    swoosh(B('vortex'), [[-80, 620], [-60, 120], [380, -80], [860, 60]], 230, '#a9cdf0', .9, 0);
-    swoosh(B('vortex'), [[-60, 420], [80, 40], [520, -40], [800, 120]], 120, '#1f4fa8', .95, 1);
-    swoosh(B('vortex'), [[60, 200], [260, 20], [560, 40], [760, -40]], 46, '#0b1f4d', 1, 2);
-    B('vortex').appendChild(el('path', { d: CURLP, fill: '#0b1f4d', transform: 'translate(620 64) rotate(-12) scale(56)', style: '--k:3' }));
-
-    /* 앞: 아래에서 감아 올라 그림 오른쪽 가장자리를 타고 오르는 파도 */
-    const P1 = [[-120, 1040], [460, 1090], [860, 960], [770, 470]];
-    const P2 = [[-120, 930], [300, 1080], [740, 1000], [730, 610]];
-    const P3 = [[60, 1060], [480, 1010], [690, 850], [700, 700]];
-    swoosh(F('vortex'), P1, 170, '#0b1f4d', 1, 4);
-    swoosh(F('vortex'), P2, 110, '#1f4fa8', .95, 5);
-    swoosh(F('vortex'), P3, 54, '#a9cdf0', .95, 6);
-    F('vortex').appendChild(el('path', { d: CURLP, fill: '#0b1f4d', transform: 'translate(748 560) rotate(-95) scale(34)', style: '--k:7' }));
-    flowLines(F('lines'), P1, [[-110, .8], [-130, .45], [96, .5]], 0);
-    flowLines(F('lines'), P2, [[-80, .5]], 3);
-
-    /* 물보라 조각: 그림 오른쪽 가장자리 → 이름 첫 글자로, 점점 작게 */
-    const shard = (x, y, len, ang, fill) => {
-      const w = len * .32;
-      F('shards').appendChild(el('path', {
-        d: `M ${-len / 2} 0 C ${-len / 4} ${-w}, ${len / 4} ${-w * .6}, ${len / 2} 0 C ${len / 4} ${w * .35}, ${-len / 4} ${w * .7}, ${-len / 2} 0 Z`,
-        fill, transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${(ang * 180 / Math.PI).toFixed(1)})`
+  // 캐릭터 뒤 눈금 빛살
+  (function buildBurst() {
+    const svg = $('pBurst');
+    const g = el('g', {});
+    const n = 16;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + rnd(-.15, .15);
+      const L = i === 3 ? 480 : rnd(140, 380);
+      const start = rnd(0, 60);
+      const x1 = Math.cos(a) * start, y1 = Math.sin(a) * start, x2 = Math.cos(a) * L, y2 = Math.sin(a) * L;
+      g.appendChild(el('line', { x1, y1, x2, y2, stroke: '#fff', 'stroke-width': 1.4, opacity: .85 }));
+      const tStart = L * rnd(.35, .6);
+      g.appendChild(el('line', {
+        x1: Math.cos(a) * tStart, y1: Math.sin(a) * tStart, x2, y2,
+        stroke: '#fff', 'stroke-width': 7, opacity: .85,
+        'stroke-dasharray': `1.4 ${rnd(4, 9).toFixed(1)} 1.4 2.4 1.4 ${rnd(10, 22).toFixed(1)}`
       }));
-    };
-    const flow = [[770, 520], [800, 430], [770, 340], [820, 290]];
-    [[0, 46, '#0b1f4d'], [.12, 30, '#1f4fa8'], [.24, 26, '#0b1f4d'], [.36, 18, '#6fa8dc'], [.48, 15, '#0b1f4d'],
-     [.6, 11, '#1f4fa8'], [.7, 8, '#0b1f4d'], [.8, 6, '#6fa8dc'], [.9, 4.5, '#0b1f4d'], [1, 3, '#0b1f4d']]
-      .forEach(([t, l, c], i) => { const [x, y] = bez(flow, t); shard(x + (i % 2 ? 10 : -6), y, l, tan(flow, t) + (i % 2 ? .3 : -.2), c); });
-    [[772, 640, 22, '#6fa8dc'], [790, 668, 9, '#0b1f4d'], [300, 1000, 30, '#a9cdf0'], [40, 990, 16, '#1f4fa8']]
-      .forEach(([x, y, l, c]) => shard(x, y, l, -.6, c));
-
-    /* 물결 문양 (대·중·소) — 글자 칸 바깥 가장자리 */
-    [[1500, 880, 40, -8], [1546, 852, 15, 16], [1556, 184, 13, -18], [1578, 170, 6, 8]].forEach(([x, y, sc, r]) =>
-      B('marks').appendChild(el('path', { d: CURLP, fill: '#0b1f4d', transform: `translate(${x} ${y}) rotate(${r}) scale(${sc})` })));
-
-    /* 끊긴 줄 */
-    [[1300, 196, 110, 2], [1330, 204, 46, 1], [1440, 200, 22, 3], [880, 905, 150, 1.5], [880, 911, 60, 1],
-     [210, 30, 130, 2], [260, 38, 50, 1]].forEach(([x, y, w, h]) =>
-      B('glitch').appendChild(el('rect', { x, y, width: w, height: h, fill: '#1f4fa8', opacity: .85 })));
+    }
+    svg.appendChild(g);
   })();
 
-  function fitGiant() {
-    const g = $('pGiant'), box = g.parentElement;
-    g.style.fontSize = '';
-    const max = box.clientWidth;
-    const w = g.scrollWidth;
-    if (w > max) g.style.fontSize = (parseFloat(getComputedStyle(g).fontSize) * max / w) + 'px';
-  }
-  window.addEventListener('resize', () => { if (P.classList.contains('open')) fitGiant(); });
-
   function showContent(base) {
-    fitGiant();
     inner.classList.remove('show');
     inner.style.setProperty('--base', base + 's');
     void inner.offsetWidth;
