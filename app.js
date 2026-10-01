@@ -220,62 +220,82 @@
     fb.appendChild(svg);
   }
 
-  // 캐릭터 창 장식
-  // 대: 흰 실크 리본 + 크게 잘린 영문 이름 / 중: 이중선 HUD, 태그라인 / 소: 깨알 글씨, 픽셀, 형광 점.
-  // 리본은 일러스트 뒤에서 나와 정보 칸 아래를 감싸고, 오른쪽 위 큰 이름으로 올라가며 시선을 글자로 이끈다.
+  // 캐릭터 창 장식 — 모든 무늬는 파도에서 나온다
+  // 대: 일러스트를 앞뒤로 감싸는 파도 붓질 (앞 파도는 잘린 그림 가장자리를 덮음)
+  // 중: 그림 오른쪽 가장자리에서 떨어져 이름 쪽으로 날아가는 물보라 조각, 결 따라 흐르는 가는 선
+  // 소: 물결 문양, 끊긴 줄, 빨간 실 — 실은 그림 앞을 지나 정보 칸의 윗줄이 된다
+  // 글자 칸(오른쪽)에는 큰 덩어리를 두지 않아 읽기를 방해하지 않음
   (function buildDeco() {
-    const svg = $('pDeco');
-    const rib = svg.querySelector('.ribbon'), glow = svg.querySelector('.ribbon-glow'), splat = svg.querySelector('.splat');
+    const back = $('pDeco'), front = $('pFront');
+    const B = n => back.querySelector('.' + n), F = n => front.querySelector('.' + n);
+    const bez = (p, t) => { const u = 1 - t; return [0, 1].map(j => u*u*u*p[0][j] + 3*u*u*t*p[1][j] + 3*u*t*t*p[2][j] + t*t*t*p[3][j]); };
+    const tan = (p, t) => { const a = bez(p, Math.max(0, t - .01)), b = bez(p, Math.min(1, t + .01)); return Math.atan2(b[1] - a[1], b[0] - a[0]); };
+    const fmt = q => q.map(v => v.toFixed(1)).join(' ');
 
-    const bez = (p0, p1, p2, p3, t) => {
-      const u = 1 - t;
-      return [0, 1].map(j => u*u*u*p0[j] + 3*u*u*t*p1[j] + 3*u*t*t*p2[j] + t*t*t*p3[j]);
-    };
-    // 기준 곡선 두 마디
-    const segs = [
-      [[560, 1010], [920, 900], [1320, 1130], [1530, 700]],
-      [[1530, 700], [1660, 420], [1580, 120], [1180, 40]]
-    ];
-    const base = [];
-    segs.forEach((sg, si) => { for (let i = si ? 1 : 0; i <= 60; i++) base.push(bez(...sg, i / 60)); });
-    const N = base.length, strands = 34;
-    for (let k = 0; k < strands; k++) {
-      const off = k / (strands - 1) - .5;
-      let d = '';
-      for (let i = 0; i < N; i++) {
-        const [x, y] = base[i];
-        const [xa, ya] = base[Math.max(0, i - 1)], [xb, yb] = base[Math.min(N - 1, i + 1)];
-        let nx = -(yb - ya), ny = xb - xa; const L = Math.hypot(nx, ny) || 1; nx /= L; ny /= L;
-        const t = i / (N - 1);
-        const width = 130 * Math.sin(Math.PI * t) ** .7;          // 양 끝은 가늘게
-        const twist = Math.cos(t * Math.PI * 2.6 + .4);            // 꼬임
-        const o = off * width * twist + off * 18;
-        d += (i ? ' L ' : 'M ') + (x + nx * o).toFixed(1) + ' ' + (y + ny * o).toFixed(1);
+    function swoosh(root, p, w, fill, op, k) {
+      const L = [], R = [];
+      for (let i = 0; i <= 90; i++) {
+        const t = i / 90, [x, y] = bez(p, t), a = tan(p, t) + Math.PI / 2;
+        const ww = w * Math.pow(Math.sin(Math.PI * Math.min(1, t * 1.15)), .75) * (1 - .55 * t) / 2;
+        const wob = 1 + .1 * Math.sin(t * 26 + k * 2);
+        L.push([x + Math.cos(a) * ww * wob, y + Math.sin(a) * ww * wob]);
+        R.push([x - Math.cos(a) * ww * .6, y - Math.sin(a) * ww * .6]);
       }
-      const edge = Math.abs(off) > .44;
-      const attrs = { d, fill: 'none', stroke: '#fff', 'stroke-width': edge ? 1.4 : .7, opacity: (edge ? .95 : .25 + .5 * Math.random()).toFixed(2), pathLength: 1, style: `--k:${k}` };
-      rib.appendChild(el('path', attrs));
-      if (k % 3 === 0) glow.appendChild(el('path', { d, fill: 'none', stroke: '#cfe0ff', 'stroke-width': 6, opacity: .35 }));
+      root.appendChild(el('path', { d: 'M ' + L.map(fmt).join(' L ') + ' L ' + R.reverse().map(fmt).join(' L ') + ' Z', fill, style: `--k:${k};--o:${op}` }));
     }
+    function flowLines(root, p, offs, k0) {
+      offs.forEach(([off, op], j) => {
+        let d = '';
+        for (let i = 0; i <= 60; i++) {
+          const t = i / 60, [x, y] = bez(p, t), a = tan(p, t) + Math.PI / 2;
+          const o = off * (1 - .5 * t);
+          d += (i ? ' L ' : 'M ') + fmt([x + Math.cos(a) * o, y + Math.sin(a) * o]);
+        }
+        root.appendChild(el('path', { d, fill: 'none', stroke: '#0b1f4d', 'stroke-width': .8, opacity: op, pathLength: 1, style: `--k:${k0 + j}` }));
+      });
+    }
+    const CURLP = 'M -1 0.35 C -0.75 -0.75, 0.55 -1.15, 1.05 -0.35 C 1.3 0.1, 1.05 0.62, 0.6 0.55 C 0.3 0.5, 0.2 0.2, 0.42 0.02 C 0.62 -0.12, 0.85 0.05, 0.78 0.25 C 0.95 -0.05, 0.7 -0.45, 0.3 -0.38 C -0.15 -0.3, -0.45 0.05, -0.55 0.4 Z';
 
-    // 형광 얼룩 (소)
-    [
-      ['#ff3bd4', 'M 1508 430 c 6 -8 14 -6 16 2 c 8 -2 12 6 6 12 c 4 8 -4 14 -10 10 c -6 6 -14 0 -12 -8 c -8 -4 -6 -14 0 -16 z'],
-      ['#8dff4a', 'M 1536 452 c 4 -4 10 -2 10 4 c 4 2 2 8 -2 8 c -2 4 -8 4 -9 -1 c -4 -2 -3 -9 1 -11 z'],
-      ['#ff3bd4', 'M 1120 60 c 10 -3 22 -1 30 4 c -8 0 -16 3 -24 2 z'],
-      ['#ffe23d', 'M 1210 70 l 12 -4 l 2 10 l -12 4 z']
-    ].forEach(([c, d]) => splat.appendChild(el('path', { d, fill: c })));
+    /* 뒤: 그림 위쪽·왼쪽으로 보이는 큰 파도 */
+    swoosh(B('vortex'), [[-80, 620], [-60, 120], [380, -80], [860, 60]], 230, '#a9cdf0', .9, 0);
+    swoosh(B('vortex'), [[-60, 420], [80, 40], [520, -40], [800, 120]], 120, '#1f4fa8', .95, 1);
+    swoosh(B('vortex'), [[60, 200], [260, 20], [560, 40], [760, -40]], 46, '#0b1f4d', 1, 2);
+    B('vortex').appendChild(el('path', { d: CURLP, fill: '#0b1f4d', transform: 'translate(620 64) rotate(-12) scale(56)', style: '--k:3' }));
 
-    // 노랑 픽셀 물결 (중)
-    const px = $('pPixel');
-    const pat = [
-      '.....XX.....',
-      '....X..X....',
-      '...X....X..X',
-      'X.X......XX.',
-      '.X..........'
-    ];
-    pat.forEach(row => [...row].forEach((ch, c) => { const i = document.createElement('i'); if (ch === 'X') { i.className = 'on'; i.style.setProperty('--d', (c * .03) + 's'); } px.appendChild(i); }));
+    /* 앞: 아래에서 감아 올라 그림 오른쪽 가장자리를 타고 오르는 파도 */
+    const P1 = [[-120, 1040], [460, 1090], [860, 960], [770, 470]];
+    const P2 = [[-120, 930], [300, 1080], [740, 1000], [730, 610]];
+    const P3 = [[60, 1060], [480, 1010], [690, 850], [700, 700]];
+    swoosh(F('vortex'), P1, 170, '#0b1f4d', 1, 4);
+    swoosh(F('vortex'), P2, 110, '#1f4fa8', .95, 5);
+    swoosh(F('vortex'), P3, 54, '#a9cdf0', .95, 6);
+    F('vortex').appendChild(el('path', { d: CURLP, fill: '#0b1f4d', transform: 'translate(748 560) rotate(-95) scale(34)', style: '--k:7' }));
+    flowLines(F('lines'), P1, [[-110, .8], [-130, .45], [96, .5]], 0);
+    flowLines(F('lines'), P2, [[-80, .5]], 3);
+
+    /* 물보라 조각: 그림 오른쪽 가장자리 → 이름 첫 글자로, 점점 작게 */
+    const shard = (x, y, len, ang, fill) => {
+      const w = len * .32;
+      F('shards').appendChild(el('path', {
+        d: `M ${-len / 2} 0 C ${-len / 4} ${-w}, ${len / 4} ${-w * .6}, ${len / 2} 0 C ${len / 4} ${w * .35}, ${-len / 4} ${w * .7}, ${-len / 2} 0 Z`,
+        fill, transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${(ang * 180 / Math.PI).toFixed(1)})`
+      }));
+    };
+    const flow = [[770, 520], [800, 430], [770, 340], [820, 290]];
+    [[0, 46, '#0b1f4d'], [.12, 30, '#1f4fa8'], [.24, 26, '#0b1f4d'], [.36, 18, '#6fa8dc'], [.48, 15, '#0b1f4d'],
+     [.6, 11, '#1f4fa8'], [.7, 8, '#0b1f4d'], [.8, 6, '#6fa8dc'], [.9, 4.5, '#0b1f4d'], [1, 3, '#0b1f4d']]
+      .forEach(([t, l, c], i) => { const [x, y] = bez(flow, t); shard(x + (i % 2 ? 10 : -6), y, l, tan(flow, t) + (i % 2 ? .3 : -.2), c); });
+    [[772, 640, 22, '#6fa8dc'], [790, 668, 9, '#0b1f4d'], [300, 1000, 30, '#a9cdf0'], [40, 990, 16, '#1f4fa8']]
+      .forEach(([x, y, l, c]) => shard(x, y, l, -.6, c));
+
+    /* 물결 문양 (대·중·소) — 글자 칸 바깥 가장자리 */
+    [[1500, 880, 40, -8], [1546, 852, 15, 16], [1556, 184, 13, -18], [1578, 170, 6, 8]].forEach(([x, y, sc, r]) =>
+      B('marks').appendChild(el('path', { d: CURLP, fill: '#0b1f4d', transform: `translate(${x} ${y}) rotate(${r}) scale(${sc})` })));
+
+    /* 끊긴 줄 */
+    [[1300, 196, 110, 2], [1330, 204, 46, 1], [1440, 200, 22, 3], [880, 905, 150, 1.5], [880, 911, 60, 1],
+     [210, 30, 130, 2], [260, 38, 50, 1]].forEach(([x, y, w, h]) =>
+      B('glitch').appendChild(el('rect', { x, y, width: w, height: h, fill: '#1f4fa8', opacity: .85 })));
   })();
 
   function fitGiant() {
