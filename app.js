@@ -218,6 +218,25 @@
   }
 
   // 캐릭터 뒤 눈금 빛살
+  // 파도 무늬 (가는 흰 선) — 대: 오른쪽 아래 물결 비늘 / 중: 오른쪽 위 작은 물결 비늘 / 소: 이름 옆 물결 끝 문양
+  (function buildWaves() {
+    const svg = $('pWaves');
+    function seigaiha(g, x0, x1, y0, y1, R) {
+      const rows = Math.ceil((y1 - y0) / (R / 2)) + 1;
+      for (let r = 0; r < rows; r++) {
+        const y = y0 + r * R / 2, shift = r % 2 ? R : 0;
+        for (let x = x0 - R + shift; x <= x1 + R; x += R * 2) {
+          [1, .72, .44].forEach(f => g.appendChild(el('path', {
+            d: `M ${x - R * f} ${y} A ${R * f} ${R * f} 0 0 1 ${x + R * f} ${y}`,
+            fill: 'none', stroke: '#fff', 'stroke-width': f === 1 ? 1.1 : .7, opacity: f === 1 ? .55 : .35
+          })));
+        }
+      }
+    }
+    seigaiha(svg.querySelector('.sei-l'), 860, 1620, 800, 1040, 44);
+    seigaiha(svg.querySelector('.sei-s'), 1180, 1620, -10, 180, 20);
+  })();
+
   (function buildBurst() {
     const svg = $('pBurst');
     const g = el('g', {});

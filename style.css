@@ -222,6 +222,15 @@ body.locked { overflow: hidden; }
 .profile-inner.show .p-collage .c3 { animation-delay: calc(var(--base) + .5s); }
 @keyframes pop { to { transform: scale(1); } }
 
+/* 파도 무늬 (가는 흰 선) */
+.p-waves { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.p-waves .sei { opacity: 0; }
+.profile-inner.show .p-waves .sei-l { animation: seiUp .9s calc(var(--base) + .3s) cubic-bezier(.2,.9,.2,1) forwards; }
+.profile-inner.show .p-waves .sei-s { animation: seiUp .9s calc(var(--base) + .45s) cubic-bezier(.2,.9,.2,1) forwards; }
+@keyframes seiUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+.p-waves .curls path { opacity: 0; transform-box: fill-box; }
+.profile-inner.show .p-waves .curls path { animation: fade .5s calc(var(--base) + .9s + var(--k) * .12s) forwards; }
+
 /* 캐릭터 그림 + 잔상 */
 .p-art { position: absolute; left: 6%; bottom: 0; width: 40%; height: 88%; }
 .p-portrait, .echo {
