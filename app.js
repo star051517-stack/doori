@@ -237,6 +237,75 @@
     seigaiha(svg.querySelector('.sei-s'), 1180, 1620, -10, 180, 20);
   })();
 
+  // 물고기 떼: 오른쪽에서 소용돌이치는 무리, 일러스트 쪽으로 몇 마리가 흘러나옴
+  (function buildFish() {
+    const g = $('pFish').querySelector('.school');
+    const FISH = 'M 0.5 0 C 0.38 -0.2, -0.1 -0.22, -0.3 -0.05 L -0.5 -0.18 L -0.42 0 L -0.5 0.18 L -0.3 0.05 C -0.1 0.22, 0.38 0.2, 0.5 0 Z';
+    const cx = 1180, cy = 500;
+    const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
+    const add = (x, y, len, ang, fill, op) => {
+      g.appendChild(el('path', { d: FISH, fill, opacity: op.toFixed(2), transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${ang.toFixed(1)}) scale(${len.toFixed(1)})` }));
+      if (len > 40 && Math.random() < .5) {
+        const r = ang * Math.PI / 180;
+        g.appendChild(el('circle', { cx: (x + Math.cos(r) * len * .3).toFixed(1), cy: (y + Math.sin(r) * len * .3).toFixed(1), r: (len * .03).toFixed(1), fill: '#fff', opacity: .9 }));
+      }
+    };
+    const LIGHT = ['#d6ecfb', '#a9d3f2', '#7db6e6'], MID = ['#3f7fc6', '#2a63ad'], DEEP = ['#06132e', '#0b1f4d', '#102a62'];
+    // 초승달 모양 벽: 바깥쪽은 밝고 안쪽은 진하게
+    for (let i = 0; i < 300; i++) {
+      const th = rnd(-3.14, 3.14);
+      const band = Math.max(0, 1 - Math.abs(th + .45) / 2.5);
+      const r = 520 + gauss() * 90 * (.4 + band);
+      const x = cx + Math.cos(th) * r, y = cy + Math.sin(th) * r * .78;
+      const depth = (r - 430) / 180;
+      const pal = depth < .35 ? DEEP : depth < .7 ? MID : LIGHT;
+      add(x, y, rnd(34, 86) * (.6 + band * .6), th * 180 / Math.PI + 90 + rnd(-12, 12), pal[Math.floor(Math.random() * pal.length)], rnd(.85, 1));
+    }
+    // 흘러나온 무리: 일러스트 쪽으로 작고 옅어짐
+    for (let i = 0; i < 40; i++) {
+      const t = Math.pow(Math.random(), .8);
+      const x = 840 - t * 200 + rnd(-30, 30), y = 860 - t * 120 + rnd(-45, 45);
+      add(x, y, 44 - t * 30 + rnd(-4, 4), 165 + rnd(-18, 18), LIGHT[Math.floor(Math.random() * 3)], .95 - t * .5);
+    }
+  })();
+
+  // 흰 선: 정보 칸을 감싸며 휘도는 가는 곡선 (두 번째 레퍼런스의 흰 선), 길쭉한 조각
+  (function buildWires() {
+    const svg = $('pWires');
+    const fx = 1180, fy = 500;
+    for (let i = 0; i < 26; i++) {
+      const rx = rnd(430, 700), ry = rx * rnd(.62, .82), rot = rnd(-28, 8);
+      const a0 = rnd(-3.4, -.6), a1 = a0 + rnd(1.6, 3.6);
+      const pt = a => [Math.cos(a) * rx, Math.sin(a) * ry];
+      const [sx, sy] = pt(a0), [ex, ey] = pt(a1);
+      const w = Math.random() < .2 ? rnd(1.6, 2.4) : rnd(.5, 1.05);
+      svg.appendChild(el('path', {
+        d: `M ${sx.toFixed(0)} ${sy.toFixed(0)} A ${rx.toFixed(0)} ${ry.toFixed(0)} 0 ${a1 - a0 > Math.PI ? 1 : 0} 1 ${ex.toFixed(0)} ${ey.toFixed(0)}`,
+        transform: `translate(${(fx + rnd(-40, 60)).toFixed(0)} ${(fy + rnd(-30, 30)).toFixed(0)}) rotate(${rot.toFixed(0)})`,
+        fill: 'none', stroke: '#fff', 'stroke-width': w.toFixed(2), opacity: rnd(.5, .95).toFixed(2), pathLength: 1, style: `--k:${i}`
+      }));
+    }
+    // 소용돌이를 비스듬히 가로지르는 긴 선 몇 가닥
+    for (let i = 0; i < 6; i++) {
+      const y0 = rnd(820, 1060), y1 = rnd(-60, 160);
+      svg.appendChild(el('path', {
+        d: `M ${rnd(640, 760).toFixed(0)} ${y0.toFixed(0)} C ${rnd(900, 1100).toFixed(0)} ${rnd(860, 1000).toFixed(0)}, ${rnd(1500, 1700).toFixed(0)} ${rnd(500, 700).toFixed(0)}, ${rnd(1560, 1660).toFixed(0)} ${y1.toFixed(0)}`,
+        fill: 'none', stroke: '#fff', 'stroke-width': rnd(.5, 1.2).toFixed(2), opacity: rnd(.5, .9).toFixed(2), pathLength: 1, style: `--k:${26 + i}`
+      }));
+    }
+    // 길쭉한 흰 조각 (고리를 따라)
+    for (let i = 0; i < 8; i++) {
+      const a = rnd(-3.1, .2), R = rnd(470, 620), L = rnd(140, 360), W = rnd(6, 18);
+      const x = fx + Math.cos(a) * R, y = fy + Math.sin(a) * R * .74;
+      svg.appendChild(el('path', {
+        class: 'sliver',
+        d: `M ${-L / 2} 0 Q 0 ${-W} ${L / 2} 0 Q 0 ${(W * .35).toFixed(1)} ${-L / 2} 0 Z`,
+        fill: '#fff', opacity: rnd(.6, .95).toFixed(2),
+        transform: `translate(${x.toFixed(0)} ${y.toFixed(0)}) rotate(${(a * 180 / Math.PI + 90).toFixed(0)})`, style: `--k:${i}`
+      }));
+    }
+  })();
+
   (function buildBurst() {
     const svg = $('pBurst');
     const g = el('g', {});
