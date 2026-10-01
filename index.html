@@ -80,10 +80,21 @@
       <button class="p-close" data-close aria-label="닫기">✕</button>
 
       <div class="p-grid" aria-hidden="true"></div>
-      <div class="p-beams" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>
-      <div class="p-collage" aria-hidden="true"><i class="c1"></i><i class="c2"></i><i class="c3"></i></div>
-
-      <svg class="p-burst" id="pBurst" viewBox="-500 -500 1000 1000" aria-hidden="true"></svg>
+      <svg class="p-deco" id="pDeco" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <!-- 고리끼리 닿는 곳이 거미줄처럼 이어지는 거품 -->
+          <filter id="foamFx" x="-10%" y="-10%" width="120%" height="120%">
+            <feGaussianBlur stdDeviation="3"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 22 -8"/>
+          </filter>
+        </defs>
+        <g class="wires"></g>
+        <g class="foam" filter="url(#foamFx)"></g>
+        <g class="stars"></g>
+      </svg>
+      <div class="p-label" aria-hidden="true"><i></i><span>방 주 기 록</span></div>
+      <div class="p-side" aria-hidden="true">PROJECT NOAH — ARK RECORD</div>
+      <div class="p-barcode" aria-hidden="true"><i></i><span id="pCode">NOAH-01</span></div>
 
       <div class="p-art">
         <div class="echo e3" aria-hidden="true"></div>

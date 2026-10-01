@@ -168,14 +168,7 @@ body.locked { overflow: hidden; }
   100% { opacity: 0; transform: translate(var(--dx, 0), -70vh) rotate(var(--r, 20deg)); }
 }
 
-/* 캐릭터 뒤 눈금 빛살 */
-.p-burst {
-  position: absolute; left: 26%; top: 52%; width: 1000px; height: 1000px;
-  translate: -50% -50%; overflow: visible; pointer-events: none;
-}
-.p-burst g { transform: scale(0); transform-origin: 0 0; }
-.profile-inner.show .p-burst g { animation: burst .7s calc(var(--base) + .15s) cubic-bezier(.2,.9,.2,1) forwards; }
-@keyframes burst { to { transform: scale(1); } }
+
 
 /* ---------------- 프로필 (캐릭터 창) ---------------- */
 .profile-inner {
@@ -189,9 +182,9 @@ body.locked { overflow: hidden; }
 .p-grid {
   position: absolute; inset: 0 0 0 42%;
   background-image:
-    linear-gradient(rgba(255,255,255,.13) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.13) 1px, transparent 1px);
-  background-size: 44px 44px;
+    linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
+  background-size: 64px 64px;
   -webkit-mask: linear-gradient(90deg, transparent, #000 25%);
           mask: linear-gradient(90deg, transparent, #000 25%);
   opacity: 0;
@@ -199,28 +192,48 @@ body.locked { overflow: hidden; }
 .profile-inner.show .p-grid { animation: fade .6s var(--base) forwards; }
 @keyframes fade { to { opacity: 1; } }
 
-/* 사선 빛줄기 */
-.p-beams i {
-  position: absolute; inset: 0;
-  transform-origin: 20% 100%; transform: scaleX(0);
+/* 가는 선 · 거품 격자 · 반짝이 */
+.p-deco { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.p-deco .wires path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.profile-inner.show .p-deco .wires path {
+  animation: draw 1.1s calc(var(--base) + var(--k) * .07s) cubic-bezier(.6,0,.2,1) forwards;
 }
-.p-beams .b1 { background: var(--cyan); opacity: .55; clip-path: polygon(18% 100%, 30% 100%, 100% 8%, 100% 0); }
-.p-beams .b2 { background: #fff; opacity: .45; clip-path: polygon(24% 100%, 24.6% 100%, 100% 26%, 100% 25.3%); }
-.p-beams .b3 { background: var(--cyan); opacity: .3; clip-path: polygon(10% 100%, 14% 100%, 72% 0, 69% 0); }
-.profile-inner.show .p-beams i { animation: beam .45s var(--base) cubic-bezier(.7,0,.2,1) forwards; }
-.profile-inner.show .p-beams .b2 { animation-delay: calc(var(--base) + .08s); }
-.profile-inner.show .p-beams .b3 { animation-delay: calc(var(--base) + .14s); }
-@keyframes beam { to { transform: scaleX(1); } }
+@keyframes draw { to { stroke-dashoffset: 0; } }
 
-/* 콜라주 사각형 */
-.p-collage i { position: absolute; display: block; transform: scale(0); }
-.p-collage .c1 { left: 47%; top: 4%; width: 120px; height: 160px; background: var(--cyan); opacity: .8; }
-.p-collage .c2 { left: 50%; top: 2%; width: 70px; height: 70px; background: var(--abyss); border: 1px solid rgba(255,255,255,.6); }
-.p-collage .c3 { right: 5%; top: 7%; width: 180px; height: 26px; background: #fff; opacity: .9; }
-.profile-inner.show .p-collage i { animation: pop .35s calc(var(--base) + .25s) cubic-bezier(.3,1.4,.5,1) forwards; }
-.profile-inner.show .p-collage .c2 { animation-delay: calc(var(--base) + .32s); }
-.profile-inner.show .p-collage .c3 { animation-delay: calc(var(--base) + .5s); }
-@keyframes pop { to { transform: scale(1); } }
+.p-deco .foam { opacity: .9; }
+.p-deco .foam circle { transform-box: fill-box; transform-origin: center; transform: scale(0); }
+.profile-inner.show .p-deco .foam circle {
+  animation: cell .7s calc(var(--base) + .25s + var(--k) * .04s) cubic-bezier(.2,1.2,.4,1) forwards;
+}
+@keyframes cell { to { transform: scale(1); } }
+
+.p-deco .tw { transform-box: fill-box; transform-origin: center; opacity: 0; }
+.profile-inner.show .p-deco .tw {
+  animation: twIn .4s calc(var(--base) + .4s + var(--k) * .05s) ease-out forwards,
+             twinkle 3.2s calc(var(--base) + 1s + var(--k) * .37s) ease-in-out infinite;
+}
+@keyframes twIn { from { opacity: 0; transform: scale(0) rotate(-45deg); } to { opacity: 1; transform: none; } }
+@keyframes twinkle { 50% { opacity: .35; transform: scale(.7); } }
+
+/* 작은 라벨 · 세로 글씨 · 바코드 */
+.p-label, .p-side, .p-barcode { position: absolute; z-index: 3; opacity: 0; }
+.profile-inner.show .p-label, .profile-inner.show .p-side, .profile-inner.show .p-barcode {
+  animation: fade .6s calc(var(--base) + .5s) forwards;
+}
+.p-label { top: 6.5%; left: 52%; display: flex; align-items: center; gap: 18px; }
+.p-label i { width: 46px; height: 16px; background: #fff; }
+.p-label span { font-size: 13px; font-weight: 400; letter-spacing: .5em; }
+.p-side {
+  right: 22px; top: 50%; translate: 0 -50%;
+  writing-mode: vertical-rl; font-family: var(--thin); font-weight: 200;
+  font-size: 10px; letter-spacing: .45em; color: rgba(255,255,255,.6); white-space: nowrap;
+}
+.p-barcode { left: 52%; bottom: 5%; display: flex; align-items: center; gap: 12px; }
+.p-barcode i {
+  width: 74px; height: 22px;
+  background: repeating-linear-gradient(90deg, #fff 0 1px, transparent 1px 3px, #fff 3px 5px, transparent 5px 6px, #fff 6px 7px, transparent 7px 10px, #fff 10px 11px, transparent 11px 12px);
+}
+.p-barcode span { font-family: var(--mono); font-size: 10px; letter-spacing: .15em; color: rgba(255,255,255,.7); }
 
 /* 캐릭터 그림 + 잔상 */
 .p-art { position: absolute; left: 6%; bottom: 0; width: 40%; height: 88%; }
@@ -318,13 +331,14 @@ body.locked { overflow: hidden; }
 /* 정보 */
 .p-right {
   position: absolute; z-index: 4;
-  left: 52%; right: 4%; top: 50%; transform: translateY(-50%);
+  left: 52%; right: 5%; top: 52%; transform: translateY(-50%);
   display: flex; flex-direction: column; gap: 20px;
   padding: 30px 32px;
 }
 .p-right::before {
   content: ''; position: absolute; inset: 0; z-index: -1;
-  background: linear-gradient(90deg, rgba(6,26,54,.35), rgba(6,26,54,.78) 18%);
+  background: linear-gradient(90deg, rgba(6,26,54,0), rgba(6,26,54,.55) 22%);
+  border-top: 1px solid rgba(255,255,255,.5); border-bottom: 1px solid rgba(255,255,255,.5);
   opacity: 0; transform: scaleX(0); transform-origin: right;
 }
 .profile-inner.show .p-right::before { animation: panel .45s calc(var(--base) + .2s) cubic-bezier(.7,0,.2,1) forwards; }
@@ -344,7 +358,7 @@ body.locked { overflow: hidden; }
 
 .p-tag {
   display: inline-block; font-size: 11px; letter-spacing: .12em;
-  padding: 3px 9px; background: #000; color: var(--cyan);
+  padding: 3px 9px; background: #fff; color: var(--deep);
 }
 .p-tag:empty { display: none; }
 .p-title h2 {
@@ -410,8 +424,10 @@ body.locked { overflow: hidden; }
   .p-plate b { font-size: 76px; }
   .p-vname { top: 128px; left: 14px; padding: 12px 8px; }
   .p-vname span { font-size: 20px; }
-  .p-collage .c1 { left: auto; right: 4%; top: 60px; width: 70px; height: 90px; }
-  .p-collage .c2, .p-collage .c3 { display: none; }
+  .p-label { left: auto; right: 20px; top: 18px; }
+  .p-label span { display: none; }
+  .p-side { display: none; }
+  .p-barcode { position: relative; left: auto; bottom: auto; margin: 0 20px 100px; }
   .p-right { position: relative; left: auto; right: auto; top: auto; transform: none; max-height: none; overflow: visible; padding: 26px 20px 90px; }
   .p-stats { grid-template-columns: repeat(2, 1fr); }
   .stat:nth-child(3) { border-left: 0; padding-left: 0; }

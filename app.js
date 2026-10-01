@@ -64,6 +64,7 @@
     });
     $('pVName').textContent = or(s.name, '??????');
     $('pVEn').textContent = 'NOAH-' + pad(i + 1);
+    $('pCode').textContent = 'NOAH-' + pad(i + 1) + ' / 12';
     $('pTag').textContent = s.tag || '';
     $('pEn').textContent = s.en || 'UNKNOWN';
     $('pCls').textContent = s.cls ? s.cls + '반' : '미정';
@@ -195,18 +196,18 @@
     }
     return d + ' Z';
   }
-  for (let k = 0; k < 16; k++) {
+  for (let k = 0; k < 9; k++) {
     const r = Math.random() < .3 ? rnd(26, 60) : rnd(6, 22);
     const box = r * 1.3;
     const svg = el('svg', { width: box * 2, height: box * 2, viewBox: `${-box} ${-box} ${box * 2} ${box * 2}` });
     const d = blobPath(r);
     const len = 2 * Math.PI * r;
-    svg.appendChild(el('path', { d, fill: 'none', stroke: '#a9d3e6', 'stroke-width': Math.max(1.6, r / 14) }));
-    svg.appendChild(el('path', { d, fill: 'none', stroke: '#4f6f8f', 'stroke-width': Math.max(2.2, r / 9), 'stroke-linecap': 'round',
+    svg.appendChild(el('path', { d, fill: 'none', stroke: 'rgba(255,255,255,.55)', 'stroke-width': 1 }));
+    svg.appendChild(el('path', { d, fill: 'none', stroke: '#fff', 'stroke-width': 1.8, 'stroke-linecap': 'round',
       'stroke-dasharray': `${(len * rnd(.06, .14)).toFixed(1)} ${(len * rnd(.2, .4)).toFixed(1)}`, 'stroke-dashoffset': rnd(0, len).toFixed(0) }));
     if (r > 26) { // 큰 거품엔 작은 거품이 붙음
       const d2 = blobPath(r * rnd(.25, .38)), ang = rnd(0, Math.PI * 2);
-      svg.appendChild(el('path', { d: d2, transform: `translate(${(Math.cos(ang) * r).toFixed(1)} ${(Math.sin(ang) * r).toFixed(1)})`, fill: 'none', stroke: '#4f6f8f', 'stroke-width': 2 }));
+      svg.appendChild(el('path', { d: d2, transform: `translate(${(Math.cos(ang) * r).toFixed(1)} ${(Math.sin(ang) * r).toFixed(1)})`, fill: 'none', stroke: 'rgba(255,255,255,.55)', 'stroke-width': 1 }));
     }
     svg.style.left = rnd(0, 100) + '%';
     svg.style.top = rnd(55, 105) + '%';
@@ -217,25 +218,53 @@
     fb.appendChild(svg);
   }
 
-  // 캐릭터 뒤 눈금 빛살
-  (function buildBurst() {
-    const svg = $('pBurst');
-    const g = el('g', {});
-    const n = 16;
-    for (let i = 0; i < n; i++) {
-      const a = (i / n) * Math.PI * 2 + rnd(-.15, .15);
-      const L = i === 3 ? 480 : rnd(140, 380);
-      const start = rnd(0, 60);
-      const x1 = Math.cos(a) * start, y1 = Math.sin(a) * start, x2 = Math.cos(a) * L, y2 = Math.sin(a) * L;
-      g.appendChild(el('line', { x1, y1, x2, y2, stroke: '#fff', 'stroke-width': 1.4, opacity: .85 }));
-      const tStart = L * rnd(.35, .6);
-      g.appendChild(el('line', {
-        x1: Math.cos(a) * tStart, y1: Math.sin(a) * tStart, x2, y2,
-        stroke: '#fff', 'stroke-width': 7, opacity: .85,
-        'stroke-dasharray': `1.4 ${rnd(4, 9).toFixed(1)} 1.4 2.4 1.4 ${rnd(10, 22).toFixed(1)}`
+  // 캐릭터 창 장식: 전선처럼 휘는 가는 선, 거품 격자, 반짝이
+  (function buildDeco() {
+    const svg = $('pDeco');
+    const wires = svg.querySelector('.wires'), foam = svg.querySelector('.foam'), stars = svg.querySelector('.stars');
+
+    // 가는 곡선 (왼쪽 아래 → 오른쪽 위로 가로지름)
+    [
+      [-60, 760, 1660, 120, 90, .9],
+      [-60, 820, 1660, 210, 120, .6],
+      [-60, 600, 1660, 40, 60, .5],
+      [300, 1060, 1660, 330, 140, .45],
+      [-60, 380, 1100, -60, 50, .35]
+    ].forEach(([x0, y0, x1, y1, sag, op], k) => {
+      const mx = (x0 + x1) / 2, my = (y0 + y1) / 2 + sag;
+      wires.appendChild(el('path', {
+        d: `M ${x0} ${y0} Q ${mx} ${my} ${x1} ${y1}`, pathLength: 1,
+        fill: 'none', stroke: '#fff', 'stroke-width': k === 0 ? 1.4 : 1, opacity: op, style: `--k:${k}`
       }));
+    });
+
+    // 거품 격자 (오른쪽 위에 모여 있음)
+    const cells = [], cx = 1210, cy = 160;
+    for (let t = 0; cells.length < 11 && t < 800; t++) {
+      const r = rnd(18, 70);
+      const x = cx + rnd(-200, 200), y = cy + rnd(-110, 70);
+      if (cells.every(c => Math.hypot(c.x - x, c.y - y) > c.r + r - 10 && Math.hypot(c.x - x, c.y - y) < c.r + r + 120)
+          || cells.length === 0) cells.push({ x, y, r });
     }
-    svg.appendChild(g);
+    cells.forEach((c, k) => foam.appendChild(el('circle', {
+      cx: c.x.toFixed(0), cy: c.y.toFixed(0), r: c.r.toFixed(0),
+      fill: 'none', stroke: '#fff', 'stroke-width': 4.5, style: `--k:${k}`
+    })));
+
+    // 반짝이 (가는 네 갈래 별)
+    const star = (L, w) => `M0 ${-L} C ${w} ${-w} ${w} ${-w} ${L} 0 C ${w} ${w} ${w} ${w} 0 ${L} C ${-w} ${w} ${-w} ${w} ${-L} 0 C ${-w} ${-w} ${-w} ${-w} 0 ${-L} Z`;
+    [[1040, 120, 22], [1480, 560, 16], [930, 840, 12], [1180, 470, 9], [1540, 90, 10], [760, 90, 14],
+     [860, 360, 7], [1390, 900, 20], [700, 640, 8], [1300, 700, 6], [1010, 600, 5], [1560, 760, 7]]
+      .forEach(([x, y, L], k) => {
+        const g = el('g', { transform: `translate(${x} ${y})` });
+        const inner = el('g', { class: 'tw', style: `--k:${k}` });
+        inner.appendChild(el('path', { d: star(L, L * .07), fill: '#fff' }));
+        if (L > 12) inner.appendChild(el('path', { d: star(L * .45, L * .04), fill: '#fff', transform: 'rotate(45)' }));
+        g.appendChild(inner);
+        stars.appendChild(g);
+      });
+    [[980, 200], [1120, 760], [820, 520], [1450, 380], [1230, 90], [900, 960]].forEach(([x, y]) =>
+      stars.appendChild(el('circle', { cx: x, cy: y, r: 1.6, fill: '#fff', opacity: .8 })));
   })();
 
   function showContent(base) {
