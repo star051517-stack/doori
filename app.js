@@ -237,71 +237,72 @@
     seigaiha(svg.querySelector('.sei-s'), 1180, 1620, -10, 180, 20);
   })();
 
-  // 물고기 떼: 오른쪽에서 소용돌이치는 무리, 일러스트 쪽으로 몇 마리가 흘러나옴
+  // 물고기 떼: 오른쪽 위에 빽빽하게 몰려 있고, 오른쪽 아래로 흘러내리며 흩어진다
   (function buildFish() {
     const g = $('pFish').querySelector('.school');
     const FISH = 'M 0.5 0 C 0.38 -0.2, -0.1 -0.22, -0.3 -0.05 L -0.5 -0.18 L -0.42 0 L -0.5 0.18 L -0.3 0.05 C -0.1 0.22, 0.38 0.2, 0.5 0 Z';
-    const cx = 1180, cy = 500;
-    const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
+    const pick = a => a[Math.floor(Math.random() * a.length)];
     const add = (x, y, len, ang, fill, op) => {
       g.appendChild(el('path', { d: FISH, fill, opacity: op.toFixed(2), transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${ang.toFixed(1)}) scale(${len.toFixed(1)})` }));
-      if (len > 40 && Math.random() < .5) {
+      if (len > 44 && Math.random() < .45) {
         const r = ang * Math.PI / 180;
         g.appendChild(el('circle', { cx: (x + Math.cos(r) * len * .3).toFixed(1), cy: (y + Math.sin(r) * len * .3).toFixed(1), r: (len * .03).toFixed(1), fill: '#fff', opacity: .9 }));
       }
     };
-    const LIGHT = ['#d6ecfb', '#a9d3f2', '#7db6e6'], MID = ['#3f7fc6', '#2a63ad'], DEEP = ['#06132e', '#0b1f4d', '#102a62'];
-    // 초승달 모양 벽: 바깥쪽은 밝고 안쪽은 진하게
-    for (let i = 0; i < 300; i++) {
-      const th = rnd(-3.14, 3.14);
-      const band = Math.max(0, 1 - Math.abs(th + .45) / 2.5);
-      const r = 520 + gauss() * 90 * (.4 + band);
-      const x = cx + Math.cos(th) * r, y = cy + Math.sin(th) * r * .78;
-      const depth = (r - 430) / 180;
-      const pal = depth < .35 ? DEEP : depth < .7 ? MID : LIGHT;
-      add(x, y, rnd(34, 86) * (.6 + band * .6), th * 180 / Math.PI + 90 + rnd(-12, 12), pal[Math.floor(Math.random() * pal.length)], rnd(.85, 1));
+    const LIGHT = ['#e3f2fc', '#b7dcf4', '#8cc4ec'], MID = ['#4f8fd0', '#3473bd', '#2a63ad'], DEEP = ['#06132e', '#0b1f4d', '#13306a'];
+
+    /* 1) 오른쪽 위: 모서리를 중심으로 휘도는 빽빽한 벽 (안쪽 진하고 바깥 가장자리 밝음) */
+    const C = [1640, 40];
+    const items = [];
+    for (let i = 0; i < 380; i++) {
+      const r = 120 + Math.pow(Math.random(), .85) * 500;
+      const th = rnd(Math.PI * .5, Math.PI * 1.08);              // 모서리에서 왼쪽·아래쪽 사분면
+      const x = C[0] + Math.cos(th) * r, y = C[1] + Math.sin(th) * r * .95;
+      const edge = (r - 120) / 500;
+      const pal = edge < .45 ? DEEP : edge < .78 ? MID : LIGHT;
+      items.push([r, x, y, rnd(38, 92) * (1.1 - edge * .4), th * 180 / Math.PI - 90 + rnd(-10, 10), pick(pal), rnd(.88, 1)]);
     }
-    // 흘러나온 무리: 일러스트 쪽으로 작고 옅어짐
-    for (let i = 0; i < 40; i++) {
-      const t = Math.pow(Math.random(), .8);
-      const x = 840 - t * 200 + rnd(-30, 30), y = 860 - t * 120 + rnd(-45, 45);
-      add(x, y, 44 - t * 30 + rnd(-4, 4), 165 + rnd(-18, 18), LIGHT[Math.floor(Math.random() * 3)], .95 - t * .5);
+    items.sort((a, b) => b[0] - a[0]).forEach(([, x, y, l, a, c, o]) => add(x, y, l, a, c, o));
+
+    /* 2) 오른쪽 아래: 벽에서 떨어져 나와 흘러내리며 흩어짐 (점점 작고 옅고 듬성듬성) */
+    const flow = [[1180, 520], [1440, 600], [1520, 860], [1180, 1040]];
+    const bz = t => { const u = 1 - t; return [0, 1].map(j => u*u*u*flow[0][j] + 3*u*u*t*flow[1][j] + 3*u*t*t*flow[2][j] + t*t*t*flow[3][j]); };
+    for (let i = 0; i < 120; i++) {
+      const t = Math.pow(Math.random(), 1.5);
+      const [x, y] = bz(t), [x2, y2] = bz(Math.min(1, t + .01));
+      const spread = 30 + t * 210;
+      const ang = Math.atan2(y2 - y, x2 - x) * 180 / Math.PI;
+      add(x + rnd(-spread, spread), y + rnd(-spread, spread) * .7, (58 - t * 40) * rnd(.7, 1.1), ang + rnd(-25, 25),
+          t < .3 ? pick(MID.concat(DEEP)) : pick(LIGHT.concat(MID)), 1 - t * .55);
     }
+    // 아주 멀리 흩어진 몇 마리
+    for (let i = 0; i < 14; i++) add(rnd(900, 1560), rnd(700, 980), rnd(10, 20), rnd(60, 140), pick(LIGHT), rnd(.35, .6));
   })();
 
-  // 흰 선: 정보 칸을 감싸며 휘도는 가는 곡선 (두 번째 레퍼런스의 흰 선), 길쭉한 조각
+  // 흰 선: 오른쪽 위 덩어리에서 엉켜 나와 아래로 흩어지며 뻗는 가는 곡선
   (function buildWires() {
     const svg = $('pWires');
-    const fx = 1180, fy = 500;
-    for (let i = 0; i < 26; i++) {
-      const rx = rnd(430, 700), ry = rx * rnd(.62, .82), rot = rnd(-28, 8);
-      const a0 = rnd(-3.4, -.6), a1 = a0 + rnd(1.6, 3.6);
-      const pt = a => [Math.cos(a) * rx, Math.sin(a) * ry];
-      const [sx, sy] = pt(a0), [ex, ey] = pt(a1);
+    const P = (x, y) => `${x.toFixed(0)} ${y.toFixed(0)}`;
+    for (let i = 0; i < 30; i++) {
+      const dense = i < 20;
+      const x0 = rnd(1250, 1680), y0 = rnd(-80, 260);                          // 위쪽 덩어리 속에서 시작
+      const c1 = [rnd(1050, 1450), rnd(150, 450)];
+      const c2 = dense ? [rnd(1300, 1700), rnd(400, 700)] : [rnd(800, 1200), rnd(500, 900)];
+      const end = dense ? [rnd(1250, 1680), rnd(700, 1080)] : [rnd(700, 1100), rnd(900, 1080)];
       const w = Math.random() < .2 ? rnd(1.6, 2.4) : rnd(.5, 1.05);
       svg.appendChild(el('path', {
-        d: `M ${sx.toFixed(0)} ${sy.toFixed(0)} A ${rx.toFixed(0)} ${ry.toFixed(0)} 0 ${a1 - a0 > Math.PI ? 1 : 0} 1 ${ex.toFixed(0)} ${ey.toFixed(0)}`,
-        transform: `translate(${(fx + rnd(-40, 60)).toFixed(0)} ${(fy + rnd(-30, 30)).toFixed(0)}) rotate(${rot.toFixed(0)})`,
-        fill: 'none', stroke: '#fff', 'stroke-width': w.toFixed(2), opacity: rnd(.5, .95).toFixed(2), pathLength: 1, style: `--k:${i}`
+        d: `M ${P(x0, y0)} C ${P(...c1)} ${P(...c2)} ${P(...end)}`,
+        fill: 'none', stroke: '#fff', 'stroke-width': w.toFixed(2), opacity: (dense ? rnd(.55, .95) : rnd(.35, .6)).toFixed(2), pathLength: 1, style: `--k:${i}`
       }));
     }
-    // 소용돌이를 비스듬히 가로지르는 긴 선 몇 가닥
-    for (let i = 0; i < 6; i++) {
-      const y0 = rnd(820, 1060), y1 = rnd(-60, 160);
-      svg.appendChild(el('path', {
-        d: `M ${rnd(640, 760).toFixed(0)} ${y0.toFixed(0)} C ${rnd(900, 1100).toFixed(0)} ${rnd(860, 1000).toFixed(0)}, ${rnd(1500, 1700).toFixed(0)} ${rnd(500, 700).toFixed(0)}, ${rnd(1560, 1660).toFixed(0)} ${y1.toFixed(0)}`,
-        fill: 'none', stroke: '#fff', 'stroke-width': rnd(.5, 1.2).toFixed(2), opacity: rnd(.5, .9).toFixed(2), pathLength: 1, style: `--k:${26 + i}`
-      }));
-    }
-    // 길쭉한 흰 조각 (고리를 따라)
-    for (let i = 0; i < 8; i++) {
-      const a = rnd(-3.1, .2), R = rnd(470, 620), L = rnd(140, 360), W = rnd(6, 18);
-      const x = fx + Math.cos(a) * R, y = fy + Math.sin(a) * R * .74;
+    // 덩어리 위의 길쭉한 흰 조각
+    for (let i = 0; i < 7; i++) {
+      const L = rnd(140, 380), W = rnd(6, 18);
       svg.appendChild(el('path', {
         class: 'sliver',
         d: `M ${-L / 2} 0 Q 0 ${-W} ${L / 2} 0 Q 0 ${(W * .35).toFixed(1)} ${-L / 2} 0 Z`,
         fill: '#fff', opacity: rnd(.6, .95).toFixed(2),
-        transform: `translate(${x.toFixed(0)} ${y.toFixed(0)}) rotate(${(a * 180 / Math.PI + 90).toFixed(0)})`, style: `--k:${i}`
+        transform: `translate(${rnd(1200, 1580).toFixed(0)} ${rnd(60, 480).toFixed(0)}) rotate(${rnd(50, 120).toFixed(0)})`, style: `--k:${i}`
       }));
     }
   })();

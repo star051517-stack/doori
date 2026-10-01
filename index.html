@@ -99,6 +99,14 @@
       </svg>
       <!-- 오른쪽 배경: 소용돌이치는 물고기 떼 + 그 위를 지나는 흰 선 -->
       <svg class="p-fish" id="pFish" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <radialGradient id="fishCore" cx="1" cy="0" r="1">
+            <stop offset="0" stop-color="#040c22" stop-opacity="1"/>
+            <stop offset=".55" stop-color="#0b1f4d" stop-opacity=".85"/>
+            <stop offset="1" stop-color="#0b1f4d" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect class="core" x="1000" y="-100" width="660" height="620" fill="url(#fishCore)"/>
         <g class="school"></g>
       </svg>
       <svg class="p-wires" id="pWires" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
