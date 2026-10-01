@@ -196,7 +196,7 @@
     }
     return d + ' Z';
   }
-  for (let k = 0; k < 9; k++) {
+  for (let k = 0; k < 5; k++) {
     const r = Math.random() < .3 ? rnd(26, 60) : rnd(6, 22);
     const box = r * 1.3;
     const svg = el('svg', { width: box * 2, height: box * 2, viewBox: `${-box} ${-box} ${box * 2} ${box * 2}` });
@@ -218,53 +218,56 @@
     fb.appendChild(svg);
   }
 
-  // 캐릭터 창 장식: 전선처럼 휘는 가는 선, 거품 격자, 반짝이
+  // 캐릭터 창 장식
+  // 구도: 큰 것(일러스트를 감싸는 큰 원) → 중간(머리 옆에서 이름 쪽으로 작아지는 거품 사슬)
+  //       → 작은 것(사슬 끝의 반짝이) 순서로 시선이 일러스트에서 이름으로 흐르게.
+  //       각 무리 안에도 다시 큰/중간/작은 요소가 있음.
   (function buildDeco() {
     const svg = $('pDeco');
     const wires = svg.querySelector('.wires'), foam = svg.querySelector('.foam'), stars = svg.querySelector('.stars');
+    const line = (d, w, op, k, dash) => wires.appendChild(el('path', {
+      d, pathLength: 1, fill: 'none', stroke: '#fff', 'stroke-width': w, opacity: op, style: `--k:${k}`,
+      ...(dash ? { class: 'dash' } : {})
+    }));
 
-    // 가는 곡선 (왼쪽 아래 → 오른쪽 위로 가로지름)
+    /* 대: 일러스트를 감싸는 큰 호 두 겹 (정보 칸 앞에서 멈춤) */
+    line('M 200 -170 A 620 620 0 1 1 199.9 -170', 1, .3, 0);
+    line('M 200 -210 A 660 660 0 1 1 199.9 -210', .8, .2, 1, true);
+
+    /* 중: 얼굴 쪽에서 나온 선이 정보 칸의 윗줄로 이어짐 + 거품 사슬로 올라가는 가는 선 */
+    line('M 470 360 Q 700 440 880 422 L 1600 422', 1.2, .85, 2);
+    line('M 470 384 Q 690 474 860 444', .7, .45, 3);
+    line('M 520 300 Q 640 230 720 150', .7, .45, 4);
+
+    /* 거품 사슬: 머리 옆(큼) → 이름 앞(작음). 큰 방울 곁에는 다시 작은 방울이 붙음 */
     [
-      [-60, 760, 1660, 120, 90, .9],
-      [-60, 820, 1660, 210, 120, .6],
-      [-60, 600, 1660, 40, 60, .5],
-      [300, 1060, 1660, 330, 140, .45],
-      [-60, 380, 1100, -60, 50, .35]
-    ].forEach(([x0, y0, x1, y1, sag, op], k) => {
-      const mx = (x0 + x1) / 2, my = (y0 + y1) / 2 + sag;
-      wires.appendChild(el('path', {
-        d: `M ${x0} ${y0} Q ${mx} ${my} ${x1} ${y1}`, pathLength: 1,
-        fill: 'none', stroke: '#fff', 'stroke-width': k === 0 ? 1.4 : 1, opacity: op, style: `--k:${k}`
-      }));
-    });
-
-    // 거품 격자 (오른쪽 위에 모여 있음)
-    const cells = [], cx = 1210, cy = 160;
-    for (let t = 0; cells.length < 11 && t < 800; t++) {
-      const r = rnd(18, 70);
-      const x = cx + rnd(-200, 200), y = cy + rnd(-110, 70);
-      if (cells.every(c => Math.hypot(c.x - x, c.y - y) > c.r + r - 10 && Math.hypot(c.x - x, c.y - y) < c.r + r + 120)
-          || cells.length === 0) cells.push({ x, y, r });
-    }
-    cells.forEach((c, k) => foam.appendChild(el('circle', {
-      cx: c.x.toFixed(0), cy: c.y.toFixed(0), r: c.r.toFixed(0),
-      fill: 'none', stroke: '#fff', 'stroke-width': 4.5, style: `--k:${k}`
+      [720, 110, 88], [800, 30, 26], [640, 210, 18],           // 대 + 곁방울
+      [822, 182, 40], [858, 146, 14], [790, 232, 10],          // 중 + 곁방울
+      [858, 228, 17], [880, 210, 6],                           // 소 + 곁방울
+      [866, 252, 8], [869, 266, 4.5], [870, 276, 2.6]          // 이름 첫 글자 위로 떨어짐
+    ].forEach(([x, y, r], k) => foam.appendChild(el('circle', {
+      cx: x, cy: y, r, fill: 'none', stroke: '#fff', 'stroke-width': r > 40 ? 4.5 : r > 15 ? 3.6 : 2.6, style: `--k:${k}`
     })));
 
-    // 반짝이 (가는 네 갈래 별)
+    /* 소: 반짝이. 사슬 끝(이름 바로 앞)에 가장 큰 별, 주변에 중간·작은 별 */
     const star = (L, w) => `M0 ${-L} C ${w} ${-w} ${w} ${-w} ${L} 0 C ${w} ${w} ${w} ${w} 0 ${L} C ${-w} ${w} ${-w} ${w} ${-L} 0 C ${-w} ${-w} ${-w} ${-w} 0 ${-L} Z`;
-    [[1040, 120, 22], [1480, 560, 16], [930, 840, 12], [1180, 470, 9], [1540, 90, 10], [760, 90, 14],
-     [860, 360, 7], [1390, 900, 20], [700, 640, 8], [1300, 700, 6], [1010, 600, 5], [1560, 760, 7]]
-      .forEach(([x, y, L], k) => {
-        const g = el('g', { transform: `translate(${x} ${y})` });
-        const inner = el('g', { class: 'tw', style: `--k:${k}` });
-        inner.appendChild(el('path', { d: star(L, L * .07), fill: '#fff' }));
-        if (L > 12) inner.appendChild(el('path', { d: star(L * .45, L * .04), fill: '#fff', transform: 'rotate(45)' }));
-        g.appendChild(inner);
-        stars.appendChild(g);
-      });
-    [[980, 200], [1120, 760], [820, 520], [1450, 380], [1230, 90], [900, 960]].forEach(([x, y]) =>
-      stars.appendChild(el('circle', { cx: x, cy: y, r: 1.6, fill: '#fff', opacity: .8 })));
+    [
+      [902, 238, 30],                       // 대 (초점: 이름 첫 글자 위)
+      [936, 206, 11], [884, 200, 6],        // 중 · 소
+      [948, 236, 3.5], [920, 186, 3],       // 아주 작게
+      [760, 470, 16], [744, 452, 6],        // 일러스트 가장자리의 작은 무리
+      [1500, 800, 18], [1470, 830, 7], [1528, 780, 4],   // 오른쪽 아래 무리 (대·중·소)
+      [1380, 120, 9], [1400, 100, 4]
+    ].forEach(([x, y, L], k) => {
+      const g = el('g', { transform: `translate(${x} ${y})` });
+      const inner = el('g', { class: 'tw', style: `--k:${k}` });
+      inner.appendChild(el('path', { d: star(L, Math.max(.5, L * .07)), fill: '#fff' }));
+      if (L > 11) inner.appendChild(el('path', { d: star(L * .42, L * .035), fill: '#fff', transform: 'rotate(45)' }));
+      g.appendChild(inner);
+      stars.appendChild(g);
+    });
+    [[980, 228], [1010, 214], [1060, 222], [1500, 360], [1250, 150]].forEach(([x, y], k) =>
+      stars.appendChild(el('circle', { cx: x, cy: y, r: k === 0 ? 2.2 : 1.3, fill: '#fff', opacity: .8 })));
   })();
 
   function showContent(base) {

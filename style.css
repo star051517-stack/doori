@@ -191,10 +191,13 @@ body.locked { overflow: hidden; }
 }
 .profile-inner.show .p-grid { animation: fade .6s var(--base) forwards; }
 @keyframes fade { to { opacity: 1; } }
+.profile-inner.show .p-deco .wires path.dash { opacity: 0; }
 
 /* 가는 선 · 거품 격자 · 반짝이 */
 .p-deco { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .p-deco .wires path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.p-deco .wires path.dash { stroke-dasharray: .002 .006; stroke-dashoffset: 0; opacity: 0; }
+.profile-inner.show .p-deco .wires path.dash { animation: fade 1s var(--base) forwards; }
 .profile-inner.show .p-deco .wires path {
   animation: draw 1.1s calc(var(--base) + var(--k) * .07s) cubic-bezier(.6,0,.2,1) forwards;
 }
@@ -203,13 +206,13 @@ body.locked { overflow: hidden; }
 .p-deco .foam { opacity: .9; }
 .p-deco .foam circle { transform-box: fill-box; transform-origin: center; transform: scale(0); }
 .profile-inner.show .p-deco .foam circle {
-  animation: cell .7s calc(var(--base) + .25s + var(--k) * .04s) cubic-bezier(.2,1.2,.4,1) forwards;
+  animation: cell .55s calc(var(--base) + .2s + var(--k) * .06s) cubic-bezier(.2,1.3,.4,1) forwards;
 }
 @keyframes cell { to { transform: scale(1); } }
 
 .p-deco .tw { transform-box: fill-box; transform-origin: center; opacity: 0; }
 .profile-inner.show .p-deco .tw {
-  animation: twIn .4s calc(var(--base) + .4s + var(--k) * .05s) ease-out forwards,
+  animation: twIn .45s calc(var(--base) + .75s + var(--k) * .05s) ease-out forwards,
              twinkle 3.2s calc(var(--base) + 1s + var(--k) * .37s) ease-in-out infinite;
 }
 @keyframes twIn { from { opacity: 0; transform: scale(0) rotate(-45deg); } to { opacity: 1; transform: none; } }
@@ -220,7 +223,7 @@ body.locked { overflow: hidden; }
 .profile-inner.show .p-label, .profile-inner.show .p-side, .profile-inner.show .p-barcode {
   animation: fade .6s calc(var(--base) + .5s) forwards;
 }
-.p-label { top: 6.5%; left: 52%; display: flex; align-items: center; gap: 18px; }
+.p-label { bottom: 10.5%; left: 52%; display: flex; align-items: center; gap: 18px; }
 .p-label i { width: 46px; height: 16px; background: #fff; }
 .p-label span { font-size: 13px; font-weight: 400; letter-spacing: .5em; }
 .p-side {
