@@ -8,37 +8,22 @@
 
   const photo = s => s.photo ? `<img src="${s.photo}" alt="${or(s.name, '')}">` : SIL;
 
-  /* ---- 거품 ---- */
-  const bubbles = document.querySelector('.bubbles');
-  for (let i = 0; i < 22; i++) {
-    const b = document.createElement('span');
-    const size = 4 + Math.random() * 14;
-    b.style.width = b.style.height = size + 'px';
-    b.style.left = Math.random() * 100 + '%';
-    b.style.animationDuration = 10 + Math.random() * 16 + 's';
-    b.style.animationDelay = -Math.random() * 20 + 's';
-    b.style.setProperty('--dx', (Math.random() * 60 - 30) + 'px');
-    bubbles.appendChild(b);
-  }
-
   /* ---- 학생증 ---- */
   const rows = [document.getElementById('row1'), document.getElementById('row2')];
   S.forEach((s, i) => {
     const no = pad(i + 1);
     const card = document.createElement('button');
     card.className = 'idcard';
-    card.style.setProperty('--tilt', ((i * 37) % 7 - 3) * 0.7 + 'deg');
     card.style.setProperty('--delay', (-(i * 0.9) % 6) + 's');
     card.setAttribute('aria-label', `${no}번 ${or(s.name, '이름 미정')} 프로필 열기`);
     card.innerHTML = `
-      <span class="id-hole"></span>
-      <span class="id-band">STUDENT ID <b>${no}</b></span>
+      <span class="id-band"><span>방주 학생증</span><b>${no}</b></span>
       <span class="id-photo">${photo(s)}</span>
       <span class="id-text">
         <span class="id-name ${s.name ? '' : 'blank'}">${or(s.name, '??????')}</span>
-        <span class="id-meta">${or(s.cls, '?')}반 · ${or(s.gender, '?')} <span class="noah">· NOAH-${no}</span></span>
+        <span class="id-meta">${or(s.cls, '?')}반 · ${or(s.gender, '?')} </span>
       </span>
-      <span class="barcode"></span>`;
+      `;
     card.addEventListener('click', () => open(i));
     (i < 5 ? rows[0] : rows[1]).appendChild(card);
   });
