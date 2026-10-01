@@ -126,6 +126,9 @@ body.locked { overflow: hidden; }
 .profile.open { visibility: visible; pointer-events: auto; }
 
 .flood { position: absolute; inset: 0; overflow: hidden; }
+.profile.open .flood { animation: floodBg .01s 1.05s forwards; }
+@keyframes floodBg { to { background: #1a62a8; } }
+.profile.closing .flood { animation: none; background: transparent; }
 
 /* 휘감아 올라오는 물결 층 */
 .sw {
@@ -247,6 +250,28 @@ body.locked { overflow: hidden; }
 @keyframes echoIn {
   from { opacity: 0; transform: translateX(calc(var(--x) + 30%)); }
   to   { opacity: var(--o); transform: translateX(var(--x)); }
+}
+
+/* 배경 딴 일러스트 */
+.profile-inner.show .p-portrait.has-art { animation: none; }
+.p-portrait.has-art { background: none; clip-path: none; overflow: visible; }
+.p-portrait.has-art .pbg {
+  position: absolute; left: 6%; right: 2%; top: 14%; bottom: 0; background: var(--cyan);
+  clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
+}
+.profile-inner.show .p-portrait.has-art .pbg { animation: artIn .55s calc(var(--base) + .05s) cubic-bezier(.7,0,.2,1) forwards; }
+.p-portrait .cut {
+  position: absolute; left: -8%; bottom: 0; width: 116%; height: 104%;
+  object-fit: contain; object-position: 50% 100%;
+  opacity: 0;
+}
+.profile-inner.show .p-portrait .cut { animation: cutIn .6s calc(var(--base) + .2s) cubic-bezier(.2,.9,.2,1) forwards; }
+@keyframes cutIn { from { opacity: 0; transform: translate(-30px, 30px); } to { opacity: 1; transform: none; } }
+.echo.art {
+  left: -8%; right: -8%; top: -4%;
+  background: var(--cyan);
+  -webkit-mask: var(--art) 50% 100% / contain no-repeat;
+          mask: var(--art) 50% 100% / contain no-repeat;
 }
 
 /* 큰 번호 */

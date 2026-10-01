@@ -4,7 +4,8 @@
  * 여기만 고치면 사이트 내용이 바뀝니다.
  *  - 순서대로 윗줄 5명, 아랫줄 7명에 배치됩니다.
  *  - card:  완성된 학생증 이미지 경로. 있으면 메인 화면에 그 이미지가 그대로 나옵니다.
- *  - photo: 학생증 사진 부분. 프로필(캐릭터 창)의 큰 그림으로 쓰입니다.
+ *  - art:   배경을 딴 전신/반신 일러스트(투명 PNG/WebP). 학생증을 눌렀을 때 크게 나옵니다.
+ *  - photo: 학생증 사진 부분. art가 없을 때 대신 쓰입니다.
  *           둘 다 비워두면('') 실루엣이 들어간 기본 학생증이 나옵니다.
  *  - 모르는 칸은 '' 로 두면 화면에 "미정"으로 나옵니다.
  *  - memory: 기억 복원율 0~100
@@ -39,19 +40,22 @@ window.STUDENTS = [
     name: '찬란', en: 'CHAN RAN', gender: '여', cls: '', height: '', tag: '',
     quote: '', desc: '', traits: [],
     reason: '', locked: true, memory: 12,
-    photo: 'images/photo-chanran.webp', card: 'images/card-chanran.webp'
+    photo: 'images/photo-chanran.webp', card: 'images/card-chanran.webp',
+    art: 'images/art-chanran.webp'
   },
   {
     name: '김유한', en: 'KIM YOOHAN', gender: '남', cls: '', height: '', tag: '',
     quote: '', desc: '', traits: [],
     reason: '', locked: true, memory: 12,
-    photo: 'images/photo-kimyoohan.webp', card: 'images/card-kimyoohan.webp'
+    photo: 'images/photo-kimyoohan.webp', card: 'images/card-kimyoohan.webp',
+    art: 'images/art-kimyoohan.webp'
   },
   {
     name: '나나', en: 'NANA', gender: '여', cls: '', height: '', tag: '',
     quote: '', desc: '', traits: [],
     reason: '', locked: true, memory: 12,
-    photo: 'images/photo-nana.webp', card: 'images/card-nana.webp'
+    photo: 'images/photo-nana.webp', card: 'images/card-nana.webp',
+    art: 'images/art-nana.webp'
   },
   { name: '', en: '', gender: '', cls: '', height: '', tag: '', quote: '', desc: '', traits: [], reason: '', locked: true, memory: 12, photo: '' },
   { name: '', en: '', gender: '', cls: '', height: '', tag: '', quote: '', desc: '', traits: [], reason: '', locked: true, memory: 12, photo: '' },

@@ -54,8 +54,14 @@
   function fill(i) {
     const s = S[i];
     $('pNo').textContent = pad(i + 1);
-    $('pPortrait').innerHTML = photo(s);
-    P.querySelectorAll('.echo').forEach(e => { e.innerHTML = photo(s); });
+    const pp = $('pPortrait');
+    pp.classList.toggle('has-art', !!s.art);
+    pp.innerHTML = s.art ? `<i class="pbg"></i><img class="cut" src="${s.art}" alt="${or(s.name, '')}">` : photo(s);
+    P.querySelectorAll('.echo').forEach(e => {
+      e.classList.toggle('art', !!s.art);
+      e.innerHTML = s.art ? '' : photo(s);
+      e.style.setProperty('--art', s.art ? `url("${s.art}")` : 'none');
+    });
     $('pVName').textContent = or(s.name, '??????');
     $('pVEn').textContent = 'NOAH-' + pad(i + 1);
     $('pTag').textContent = s.tag || '';
