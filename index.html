@@ -69,14 +69,8 @@
   <!-- 프로필 오버레이 -->
   <div class="profile" id="profile" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pName">
     <div class="flood" data-close>
-      <div class="wave w1"></div>
-      <div class="wave w2"></div>
-      <div class="wave w3">
-        <svg class="deep-light" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
-          <g mask="url(#mB)"><rect width="1600" height="1000" fill="#2a7fc0" filter="url(#patchA)"/></g>
-        </svg>
-      </div>
-      <div class="flood-bubbles"></div>
+      <!-- 물결 층은 app.js에서 그림 -->
+      <div class="flood-bubbles" aria-hidden="true"></div>
     </div>
 
     <button class="p-nav p-prev" id="pPrev" aria-label="이전 학생">‹</button>
@@ -85,10 +79,21 @@
     <div class="profile-inner" id="pInner">
       <button class="p-close" data-close aria-label="닫기">✕</button>
 
-      <div class="p-left">
+      <div class="p-grid" aria-hidden="true"></div>
+      <div class="p-beams" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>
+      <div class="p-collage" aria-hidden="true"><i class="c1"></i><i class="c2"></i><i class="c3"></i></div>
+
+      <svg class="p-burst" id="pBurst" viewBox="-500 -500 1000 1000" aria-hidden="true"></svg>
+
+      <div class="p-art">
+        <div class="echo e3" aria-hidden="true"></div>
+        <div class="echo e2" aria-hidden="true"></div>
+        <div class="echo e1" aria-hidden="true"></div>
         <div class="p-portrait" id="pPortrait"></div>
-        <div class="p-no" id="pNo">No.01</div>
       </div>
+
+      <div class="p-plate" aria-hidden="true"><span>NO</span><b id="pNo">01</b></div>
+      <div class="p-vname" aria-hidden="true"><span id="pVName"></span><small id="pVEn"></small></div>
 
       <div class="p-right">
         <div class="p-block p-title">
