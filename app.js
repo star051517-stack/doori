@@ -6,6 +6,38 @@
   const SIL = '<svg class="sil" viewBox="0 0 100 110" fill="currentColor" aria-hidden="true">' +
     '<circle cx="50" cy="38" r="22"/><path d="M8 110c0-26 19-44 42-44s42 18 42 44z"/></svg>';
 
+  // 일러스트 뒤 네모: 흰 종이 + 점 격자 위에 번진 파란 붓질, 끊긴 줄, 작은 문양
+  const PBG = `<svg viewBox="0 0 400 520" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <pattern id="pbgDots" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".8" fill="#0b1f4d" opacity=".35"/></pattern>
+      <linearGradient id="pbgPaper" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7f9fc"/><stop offset="1" stop-color="#e3ebf5"/></linearGradient>
+      <filter id="pbgSoft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="9"/></filter>
+      <filter id="pbgMid" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3"/></filter>
+    </defs>
+    <rect width="400" height="520" fill="url(#pbgPaper)"/>
+    <rect width="400" height="520" fill="url(#pbgDots)"/>
+    <g filter="url(#pbgSoft)">
+      <path d="M 430 60 C 330 90, 270 170, 230 280 C 210 360, 200 440, 210 560 L 330 560 C 330 440, 360 320, 430 250 Z" fill="#1f4fa8" opacity=".7"/>
+      <path d="M 430 200 C 370 240, 330 320, 310 420 C 300 470, 300 520, 310 560 L 430 560 Z" fill="#06132e" opacity=".75"/>
+      <path d="M 300 -20 C 260 60, 180 110, 60 140 L 90 170 C 200 150, 290 100, 360 -20 Z" fill="#6fa8dc" opacity=".8"/>
+      <ellipse cx="330" cy="500" rx="70" ry="34" fill="#e0333a" opacity=".25"/>
+    </g>
+    <g filter="url(#pbgMid)">
+      <path d="M 420 70 C 320 110, 220 200, 150 330" stroke="#ffffff" stroke-width="10" fill="none" opacity=".7"/>
+      <path d="M 430 300 C 380 340, 350 410, 340 520" stroke="#0b1f4d" stroke-width="14" fill="none" opacity=".6"/>
+    </g>
+    <g fill="#6fa8dc" opacity=".9">
+      <rect x="22" y="58" width="70" height="1.5"/><rect x="22" y="62" width="70" height="1.5"/><rect x="22" y="66" width="44" height="1.5"/>
+      <rect x="250" y="40" width="58" height="1.2"/><rect x="250" y="44" width="58" height="1.2"/><rect x="250" y="48" width="30" height="1.2"/>
+      <rect x="30" y="430" width="90" height="1.2"/><rect x="30" y="434" width="90" height="1.2"/><rect x="30" y="438" width="54" height="1.2"/><rect x="30" y="442" width="90" height="1.2"/>
+    </g>
+    <g fill="#0b1f4d">
+      <rect x="0" y="210" width="400" height=".6" opacity=".25"/><rect x="0" y="380" width="400" height=".6" opacity=".25"/>
+    </g>
+    <text x="22" y="92" font-family="Bodoni Moda, serif" font-size="11" fill="#0b1f4d" opacity=".8">ark record</text>
+    <text x="30" y="462" font-family="IBM Plex Mono, monospace" font-size="7" fill="#0b1f4d" opacity=".6" letter-spacing="1">NAKWON HIGH SCHOOL</text>
+  </svg>`;
+
   const photo = s => s.photo ? `<img src="${s.photo}" alt="${or(s.name, '')}">` : SIL;
 
   /* ---- 학생증 ---- */
@@ -56,7 +88,7 @@
     $('pNo').textContent = pad(i + 1);
     const pp = $('pPortrait');
     pp.classList.toggle('has-art', !!s.art);
-    pp.innerHTML = s.art ? `<i class="pbg"></i><img class="cut" src="${s.art}" alt="${or(s.name, '')}">` : photo(s);
+    pp.innerHTML = s.art ? `<div class="pframe"></div><div class="pbg">${PBG}</div><img class="cut" src="${s.art}" alt="${or(s.name, '')}">` : photo(s);
     P.querySelectorAll('.echo').forEach(e => {
       e.classList.toggle('art', !!s.art);
       e.innerHTML = s.art ? '' : photo(s);
