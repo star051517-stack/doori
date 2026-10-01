@@ -169,13 +169,7 @@ body.locked { overflow: hidden; }
 }
 
 /* 캐릭터 뒤 눈금 빛살 */
-.p-burst {
-  position: absolute; left: 26%; top: 52%; width: 1000px; height: 1000px;
-  translate: -50% -50%; overflow: visible; pointer-events: none;
-}
-.p-burst g { transform: scale(0); transform-origin: 0 0; }
-.profile-inner.show .p-burst g { animation: burst .7s calc(var(--base) + .15s) cubic-bezier(.2,.9,.2,1) forwards; }
-@keyframes burst { to { transform: scale(1); } }
+
 
 /* ---------------- 프로필 (캐릭터 창) ---------------- */
 .profile-inner {
@@ -204,8 +198,8 @@ body.locked { overflow: hidden; }
   position: absolute; inset: 0;
   transform-origin: 20% 100%; transform: scaleX(0);
 }
-.p-beams .b1 { background: var(--cyan); opacity: .55; clip-path: polygon(18% 100%, 30% 100%, 100% 8%, 100% 0); }
-.p-beams .b2 { background: #fff; opacity: .45; clip-path: polygon(24% 100%, 24.6% 100%, 100% 26%, 100% 25.3%); }
+.p-beams .b1 { background: var(--cyan); opacity: .28; clip-path: polygon(18% 100%, 30% 100%, 100% 8%, 100% 0); }
+.p-beams .b2 { background: #fff; opacity: .35; clip-path: polygon(24% 100%, 24.6% 100%, 100% 26%, 100% 25.3%); }
 .p-beams .b3 { background: var(--cyan); opacity: .3; clip-path: polygon(10% 100%, 14% 100%, 72% 0, 69% 0); }
 .profile-inner.show .p-beams i { animation: beam .45s var(--base) cubic-bezier(.7,0,.2,1) forwards; }
 .profile-inner.show .p-beams .b2 { animation-delay: calc(var(--base) + .08s); }
@@ -213,21 +207,15 @@ body.locked { overflow: hidden; }
 @keyframes beam { to { transform: scaleX(1); } }
 
 /* 콜라주 사각형 */
-.p-collage i { position: absolute; display: block; transform: scale(0); }
-.p-collage .c1 { left: 47%; top: 4%; width: 120px; height: 160px; background: var(--cyan); opacity: .8; }
-.p-collage .c2 { left: 50%; top: 2%; width: 70px; height: 70px; background: var(--abyss); border: 1px solid rgba(255,255,255,.6); }
-.p-collage .c3 { right: 5%; top: 7%; width: 180px; height: 26px; background: #fff; opacity: .9; }
-.profile-inner.show .p-collage i { animation: pop .35s calc(var(--base) + .25s) cubic-bezier(.3,1.4,.5,1) forwards; }
-.profile-inner.show .p-collage .c2 { animation-delay: calc(var(--base) + .32s); }
-.profile-inner.show .p-collage .c3 { animation-delay: calc(var(--base) + .5s); }
-@keyframes pop { to { transform: scale(1); } }
+
 
 /* 파도 무늬 (가는 흰 선) */
 .p-waves { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .p-waves .sei { opacity: 0; }
+.p-waves .sei-l { --seiO: .6; }
 .profile-inner.show .p-waves .sei-l { animation: seiUp .9s calc(var(--base) + .3s) cubic-bezier(.2,.9,.2,1) forwards; }
 .profile-inner.show .p-waves .sei-s { animation: seiUp .9s calc(var(--base) + .45s) cubic-bezier(.2,.9,.2,1) forwards; }
-@keyframes seiUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes seiUp { from { opacity: 0; transform: translateY(24px); } to { opacity: var(--seiO, 1); transform: none; } }
 .p-waves .curls path { opacity: 0; transform-box: fill-box; }
 .profile-inner.show .p-waves .curls path { animation: fade .5s calc(var(--base) + .9s + var(--k) * .12s) forwards; }
 
@@ -307,6 +295,9 @@ body.locked { overflow: hidden; }
           mask: var(--art) 50% 100% / contain no-repeat;
 }
 
+.p-portrait .sil-wrap { left: 18%; width: 70%; height: 80%; display: flex; align-items: flex-end; justify-content: center; }
+.p-portrait .sil-wrap .sil { width: 100%; color: #0b1f4d; opacity: .85; }
+
 /* 큰 번호 */
 .p-plate {
   position: absolute; left: 2.2%; top: 3%; z-index: 3;
@@ -323,8 +314,9 @@ body.locked { overflow: hidden; }
 .p-vname {
   position: absolute; left: 2.2%; top: calc(3% + clamp(110px, 13vw, 190px)); z-index: 3;
   writing-mode: vertical-rl;
-  background: #000; color: #fff;
+  background: #061a36; color: #fff;
   padding: 16px 10px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
   display: flex; align-items: center; gap: 14px;
   clip-path: inset(0 0 100% 0);
 }
@@ -357,7 +349,7 @@ body.locked { overflow: hidden; }
 }
 .p-right::before {
   content: ''; position: absolute; inset: 0; z-index: -1;
-  background: linear-gradient(90deg, rgba(6,26,54,.3), rgba(6,26,54,.66) 18%);
+  background: linear-gradient(90deg, rgba(6,26,54,.35), rgba(6,26,54,.8) 18%);
   opacity: 0; transform: scaleX(0); transform-origin: right;
 }
 .profile-inner.show .p-right::before { animation: panel .45s calc(var(--base) + .2s) cubic-bezier(.7,0,.2,1) forwards; }
@@ -377,7 +369,7 @@ body.locked { overflow: hidden; }
 
 .p-tag {
   display: inline-block; font-size: 11px; letter-spacing: .12em;
-  padding: 3px 9px; background: #000; color: var(--cyan);
+  padding: 3px 9px; background: #061a36; color: var(--cyan);
 }
 .p-tag:empty { display: none; }
 .p-title h2 {
@@ -415,7 +407,7 @@ body.locked { overflow: hidden; }
 .bar i { display: block; height: 100%; width: 0; background: var(--cyan); transition: width .8s ease-out; }
 
 .p-reason p { font-size: 15px; line-height: 1.7; }
-.redact { display: inline-block; background: #000; color: transparent; user-select: none; margin: 3px 5px 3px 0; line-height: 1.1; }
+.redact { display: inline-block; background: rgba(207,226,236,.85); color: transparent; user-select: none; margin: 3px 5px 3px 0; line-height: 1.1; }
 .locked-msg { display: block; font-size: 11px; color: rgba(255,255,255,.55); margin-top: 6px; }
 
 .p-counter { display: flex; align-items: center; gap: 12px; }
@@ -443,8 +435,6 @@ body.locked { overflow: hidden; }
   .p-plate b { font-size: 76px; }
   .p-vname { top: 128px; left: 14px; padding: 12px 8px; }
   .p-vname span { font-size: 20px; }
-  .p-collage .c1 { left: auto; right: 4%; top: 60px; width: 70px; height: 90px; }
-  .p-collage .c2, .p-collage .c3 { display: none; }
   .p-right { position: relative; left: auto; right: auto; top: auto; transform: none; max-height: none; overflow: visible; padding: 26px 20px 90px; }
   .p-stats { grid-template-columns: repeat(2, 1fr); }
   .stat:nth-child(3) { border-left: 0; padding-left: 0; }

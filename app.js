@@ -87,8 +87,9 @@
     const s = S[i];
     $('pNo').textContent = pad(i + 1);
     const pp = $('pPortrait');
-    pp.classList.toggle('has-art', !!s.art);
-    pp.innerHTML = s.art ? `<div class="pframe"></div><div class="pbg">${PBG}</div><img class="cut" src="${s.art}" alt="${or(s.name, '')}">` : photo(s);
+    pp.classList.add('has-art');
+    pp.innerHTML = `<div class="pframe"></div><div class="pbg">${PBG}</div>` +
+      (s.art ? `<img class="cut" src="${s.art}" alt="${or(s.name, '')}">` : `<div class="cut sil-wrap">${SIL}</div>`);
     P.querySelectorAll('.echo').forEach(e => {
       e.classList.toggle('art', !!s.art);
       e.innerHTML = s.art ? '' : photo(s);
@@ -227,14 +228,14 @@
     }
     return d + ' Z';
   }
-  for (let k = 0; k < 16; k++) {
-    const r = Math.random() < .3 ? rnd(26, 60) : rnd(6, 22);
+  for (let k = 0; k < 6; k++) {
+    const r = rnd(5, 16);
     const box = r * 1.3;
     const svg = el('svg', { width: box * 2, height: box * 2, viewBox: `${-box} ${-box} ${box * 2} ${box * 2}` });
     const d = blobPath(r);
     const len = 2 * Math.PI * r;
-    svg.appendChild(el('path', { d, fill: 'none', stroke: '#a9d3e6', 'stroke-width': Math.max(1.6, r / 14) }));
-    svg.appendChild(el('path', { d, fill: 'none', stroke: '#4f6f8f', 'stroke-width': Math.max(2.2, r / 9), 'stroke-linecap': 'round',
+    svg.appendChild(el('path', { d, fill: 'none', stroke: 'rgba(255,255,255,.5)', 'stroke-width': 1 }));
+    svg.appendChild(el('path', { d, fill: 'none', stroke: 'rgba(255,255,255,.85)', 'stroke-width': 1.4, 'stroke-linecap': 'round',
       'stroke-dasharray': `${(len * rnd(.06, .14)).toFixed(1)} ${(len * rnd(.2, .4)).toFixed(1)}`, 'stroke-dashoffset': rnd(0, len).toFixed(0) }));
     if (r > 26) { // 큰 거품엔 작은 거품이 붙음
       const d2 = blobPath(r * rnd(.25, .38)), ang = rnd(0, Math.PI * 2);
@@ -249,8 +250,7 @@
     fb.appendChild(svg);
   }
 
-  // 캐릭터 뒤 눈금 빛살
-  // 파도 무늬 (가는 흰 선) — 대: 오른쪽 아래 물결 비늘 / 중: 오른쪽 위 작은 물결 비늘 / 소: 이름 옆 물결 끝 문양
+  // 파도 무늬 (가는 흰 선): 오른쪽 아래 물결 비늘
   (function buildWaves() {
     const svg = $('pWaves');
     function seigaiha(g, x0, x1, y0, y1, R) {
@@ -266,7 +266,6 @@
       }
     }
     seigaiha(svg.querySelector('.sei-l'), 860, 1620, 800, 1040, 44);
-    seigaiha(svg.querySelector('.sei-s'), 1180, 1620, -10, 180, 20);
   })();
 
   // 물고기 떼: 오른쪽 위에 빽빽하게 몰려 있고, 오른쪽 아래로 흘러내리며 흩어진다
@@ -328,35 +327,15 @@
       }));
     }
     // 덩어리 위의 길쭉한 흰 조각
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 4; i++) {
       const L = rnd(140, 380), W = rnd(6, 18);
       svg.appendChild(el('path', {
         class: 'sliver',
         d: `M ${-L / 2} 0 Q 0 ${-W} ${L / 2} 0 Q 0 ${(W * .35).toFixed(1)} ${-L / 2} 0 Z`,
-        fill: '#fff', opacity: rnd(.6, .95).toFixed(2),
+        fill: '#fff', opacity: rnd(.45, .75).toFixed(2),
         transform: `translate(${rnd(1200, 1580).toFixed(0)} ${rnd(60, 480).toFixed(0)}) rotate(${rnd(50, 120).toFixed(0)})`, style: `--k:${i}`
       }));
     }
-  })();
-
-  (function buildBurst() {
-    const svg = $('pBurst');
-    const g = el('g', {});
-    const n = 16;
-    for (let i = 0; i < n; i++) {
-      const a = (i / n) * Math.PI * 2 + rnd(-.15, .15);
-      const L = i === 3 ? 480 : rnd(140, 380);
-      const start = rnd(0, 60);
-      const x1 = Math.cos(a) * start, y1 = Math.sin(a) * start, x2 = Math.cos(a) * L, y2 = Math.sin(a) * L;
-      g.appendChild(el('line', { x1, y1, x2, y2, stroke: '#fff', 'stroke-width': 1.4, opacity: .85 }));
-      const tStart = L * rnd(.35, .6);
-      g.appendChild(el('line', {
-        x1: Math.cos(a) * tStart, y1: Math.sin(a) * tStart, x2, y2,
-        stroke: '#fff', 'stroke-width': 7, opacity: .85,
-        'stroke-dasharray': `1.4 ${rnd(4, 9).toFixed(1)} 1.4 2.4 1.4 ${rnd(10, 22).toFixed(1)}`
-      }));
-    }
-    svg.appendChild(g);
   })();
 
   function showContent(base) {
